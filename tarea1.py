@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib as mpl
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 
 def f1(x1, x2):
@@ -35,19 +33,25 @@ def main():
 
     # Se grafica funcion f1(x1, x2) = x1**2 - x2**2
 
-    ax.contour(x, y, f2(x, y), [16], colors='b', alpha = 0.4)
+    ax.contour(x, y, f2(x, y), [16], colors='b', alpha = 0.7)
 
     # Se grafica funcion f2(x1, x2) = 2*x1*x2
 
-    ax.contour(x, y, f1(x, y), [12], colors='g', alpha = 0.4)
+    ax.contour(x, y, f1(x, y), [12], colors='g', alpha = 0.7)
 
     # Se grafican puntos de interseccion entre las curvas de nivel
 
     ax.plot(np.array([-4, 4]), np.array([-2, 2]), '.', color = 'r')
 
-    # Se grafican las leyendas
+    # Se grafican las leyendas, titulo y nombre de los ejes
 
-    ax.legend(['x1**2 - x2**2', '2*x1*x2', 'Intersection points'])
+    ax.legend(['${x_1}^2 - {x_2}^2 = 16$', '$2x_1x_2 = 12$', 'Intersection points'])
+    
+    ax.set_xlabel('$x_1$')
+    
+    ax.set_ylabel('$x_2$')
+    
+    ax.set_title('Level sets')
 
     # Se muestra la grafica
 
