@@ -51,7 +51,6 @@ def gradient_descent(x0, mxitr, tol_g, tol_x, tol_f, f, g, msg, H=None, *args):
         elif msg == "Backtracking":
 
             alpha = backtracking(x, grad, f, g, 1, 0.9)
-            print("\nALPHA: ", alpha)
 
         else:
 
