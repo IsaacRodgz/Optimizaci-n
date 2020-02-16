@@ -15,7 +15,7 @@ def gradient_descent(x0, mxitr, tol_g, tol_x, tol_f, f, g, msg, H=None, *args):
         msg (string): Step size update method
         H (function): Hessian  function (Optional parameter)
 
-    Returns: Numpy array with minimum point
+    Returns: List with all points x traversed during gradient descent
     """
     # Start iteration at 0
     k = 0
@@ -23,8 +23,14 @@ def gradient_descent(x0, mxitr, tol_g, tol_x, tol_f, f, g, msg, H=None, *args):
     # Initial point
     x = x0
 
+    # List to save points x
+    xs = []
+
     # Iterate while max. num. of iters has not been reached
     while k < mxitr:
+
+        # Save current point
+        xs.append(x)
 
         # Get gradient evaluated at point x
         grad = g(x)
@@ -44,7 +50,8 @@ def gradient_descent(x0, mxitr, tol_g, tol_x, tol_f, f, g, msg, H=None, *args):
 
         elif msg == "Backtracking":
 
-            alpha = 0.01
+            alpha = backtracking(x, grad, f, g, 1, 0.9)
+            print("\nALPHA: ", alpha)
 
         else:
 
@@ -67,7 +74,7 @@ def gradient_descent(x0, mxitr, tol_g, tol_x, tol_f, f, g, msg, H=None, *args):
 
         tol_g_val = np.linalg.norm(x_old)
 
-        log(x_old, x, k, tol_g_val, tol_x_val, tol_f_val)
+        log(x_old, grad, x, k, tol_g_val, tol_x_val, tol_f_val)
 
         # Check for convergence
 
@@ -95,14 +102,28 @@ def gradient_descent(x0, mxitr, tol_g, tol_x, tol_f, f, g, msg, H=None, *args):
 
             break
 
-    return x
+    return xs
 
 
-def log(x_old, x, curr_iter, tol_g_val, tol_x_val, tol_f_val):
+def backtracking(x, grad, f, g, tau, beta):
+
+    alpha = 1
+    # tau (0, 0.5)
+    # beta (0, 1)
+
+    while f(x + alpha*grad) > f(x) + tau*alpha*grad.dot(grad):
+
+        alpha *= beta
+
+    return alpha
+
+
+def log(x_old, grad, x, curr_iter, tol_g_val, tol_x_val, tol_f_val):
     """Print to console status of current iteration
 
     Args:
         x_old (numpy array): Previous solution point
+        grad (numpy array): Gradient of the function at x_old
         x (numpy array): Solution point after gradient step
         curr_iter (int): Current number of iteration
         tol_g (float): Tolerance for gradient norm
@@ -112,8 +133,9 @@ def log(x_old, x, curr_iter, tol_g_val, tol_x_val, tol_f_val):
     Output: Print to console status of gradient descent
     """
     print("-----------------------------------")
-    print("\n Iter: ", curr_iter+1)
+    print("\n Iter: ", curr_iter)
     print("\n x_old: ", x_old)
+    print("\n gradient: ", grad)
     print("\n x: ", x)
     print("\n tol_x_val: ", tol_x_val)
     print("\n tol_f_val: ", tol_f_val)
