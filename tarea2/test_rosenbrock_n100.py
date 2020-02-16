@@ -34,17 +34,17 @@ def g_rosenbrock_100(x):
 
 def H_rosenbrock_100(x):
 
-    grad = np.zeros((100, 100))
+    hessian = np.zeros((100, 100))
 
     for i in range(99):
 
-        grad[i][i] = -400*x[i+1] + 1200*x[i]**2 + 2
-        grad[i][i+1] = -400*x[i]
+        hessian[i][i] = -400*x[i+1] + 1200*x[i]**2 + 2
+        hessian[i][i+1] = -400*x[i]
 
-    grad[99][98] = -400*x[98]
-    grad[99][99] = 200
+    hessian[99][98] = -400*x[98]
+    hessian[99][99] = 200
 
-    return grad
+    return hessian
 
 
 if __name__ == '__main__':
