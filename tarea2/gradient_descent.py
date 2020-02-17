@@ -71,8 +71,10 @@ def gradient_descent(x0, mxitr, tol_g, tol_x, tol_f, f, g, msg, H=None, *args):
 
         tol_g_val = np.linalg.norm(x_old)
 
-        if k%20 == 0:
+        if k%500 == 0:
             log2(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f(x))
+
+        #log(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f(x))
 
         # Update iteration counter
 

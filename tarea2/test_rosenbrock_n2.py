@@ -29,6 +29,10 @@ if __name__ == '__main__':
     # Initial point
     x0 = np.array([-1.2, 1])
 
+    # Random initial point
+    #x0 = np.random.uniform(-4,2,2)
+    #print("Random initial point: ", x0)
+
     # Min point
     x_min = np.array([1, 1])
 
@@ -46,8 +50,8 @@ if __name__ == '__main__':
 
     # Method for step update
     # msg = "StepFijo"
-    # msg = "StepHess"
-    msg = "Backtracking"
+    msg = "StepHess"
+    # msg = "Backtracking"
 
     # Gradient step size for "StepFijo" method
     step_size = 2e-3
@@ -64,4 +68,4 @@ if __name__ == '__main__':
 
     # Plot level sets and gradient path
 
-    plot_level_set(xs, f_rosenbrock_2, -2.0, 2.0, -8.0, 8.0, x0, x_min)
+    plot_level_set(xs, f_rosenbrock_2, -5.0, 2.0, -8.0, 8.0, x0, x_min)

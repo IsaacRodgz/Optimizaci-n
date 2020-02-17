@@ -54,6 +54,9 @@ if __name__ == '__main__':
     x0[0] = -1.2
     x0[-2] = -1.2
 
+    # Random initial point
+    #x0 = np.random.uniform(-2,2,100)
+
     # Min point
     x_min = np.ones(100)
 
@@ -70,12 +73,12 @@ if __name__ == '__main__':
     tol_f = 1e-8
 
     # Method for step update
-    msg = "StepFijo"
-    # msg = "StepHess"
+    # msg = "StepFijo"
+    msg = "StepHess"
     # msg = "Backtracking"
 
     # Gradient step size for "StepFijo" method
-    step_size = 2e-3
+    step_size = 1e-5
 
     # Estimate minimum point through gradient descent
     xs = gradient_descent(x0, mxitr, tol_g, tol_x, tol_f,
