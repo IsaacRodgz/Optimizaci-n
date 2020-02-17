@@ -50,7 +50,7 @@ def gradient_descent(x0, mxitr, tol_g, tol_x, tol_f, f, g, msg, H=None, *args):
 
         elif msg == "Backtracking":
 
-            alpha = backtracking(x, grad, f, g, 1, 0.9)
+            alpha = backtracking(x, grad, f, g, 0.01, 0.5)
 
         else:
 
@@ -65,15 +65,18 @@ def gradient_descent(x0, mxitr, tol_g, tol_x, tol_f, f, g, msg, H=None, *args):
 
         # Calculate different tolerance criteria
 
-        k += 1
-
         tol_x_val = np.linalg.norm(x - x_old)/max(1.0, np.linalg.norm(x_old))
 
         tol_f_val = np.absolute(f(x) - f(x_old))/max(1.0, np.absolute(f(x_old)))
 
         tol_g_val = np.linalg.norm(x_old)
 
-        log(x_old, grad, x, k, tol_g_val, tol_x_val, tol_f_val)
+        if k%20 == 0:
+            log2(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f(x))
+
+        # Update iteration counter
+
+        k += 1
 
         # Check for convergence
 
@@ -101,16 +104,16 @@ def gradient_descent(x0, mxitr, tol_g, tol_x, tol_f, f, g, msg, H=None, *args):
 
             break
 
+    log2(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f(x))
+
     return xs
 
 
 def backtracking(x, grad, f, g, tau, beta):
 
     alpha = 1
-    # tau (0, 0.5)
-    # beta (0, 1)
 
-    while f(x + alpha*grad) > f(x) + tau*alpha*grad.dot(grad):
+    while f(x - alpha*grad) > f(x) + tau*alpha*g(x).dot(grad):
 
         alpha *= beta
 
@@ -139,3 +142,22 @@ def log(x_old, grad, x, curr_iter, tol_g_val, tol_x_val, tol_f_val):
     print("\n tol_x_val: ", tol_x_val)
     print("\n tol_f_val: ", tol_f_val)
     print("\n tol_g_val: %s \n " % tol_g_val)
+
+
+def log2(x_old, grad, x, curr_iter, tol_g_val, tol_x_val, tol_f_val):
+    """Print to console status of current iteration
+
+    Args:
+        x_old (numpy array): Previous solution point
+        grad (numpy array): Gradient of the function at x_old
+        x (numpy array): Solution point after gradient step
+        curr_iter (int): Current number of iteration
+        tol_g (float): Tolerance for gradient norm
+        tol_x (float): Tolerance for x's relative error
+        tol_f (float): Tolerance for relative error in evaluation of function f
+
+    Output: Print to console status of gradient descent
+    """
+    #print("-----------------------------------")
+    # print("\n  k  |  ||x_k+1 - x_k||  |  || grad(f_k) ||  |  f(x_k)")
+    print("{0} & {1:.10E} & {2:.10E} & {3:.10E} \\\\".format(curr_iter, tol_x_val, tol_g_val, tol_f_val))

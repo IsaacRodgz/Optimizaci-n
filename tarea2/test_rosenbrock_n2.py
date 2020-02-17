@@ -45,9 +45,9 @@ if __name__ == '__main__':
     tol_f = 1e-8
 
     # Method for step update
-    msg = "StepFijo"
+    # msg = "StepFijo"
     # msg = "StepHess"
-    # msg = "Backtracking"
+    msg = "Backtracking"
 
     # Gradient step size for "StepFijo" method
     step_size = 2e-3
@@ -64,4 +64,4 @@ if __name__ == '__main__':
 
     # Plot level sets and gradient path
 
-    plot_level_set(xs, f_rosenbrock_2, -5.0, 2.0, -8.0, 8.0, x0, x_min)
+    plot_level_set(xs, f_rosenbrock_2, -2.0, 2.0, -8.0, 8.0, x0, x_min)
