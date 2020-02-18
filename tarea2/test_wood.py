@@ -66,13 +66,18 @@ def H_wood(x):
     return hessian
 
 
-if __name__ == '__main__':
+def run_wood(step, point_type):
 
     # Initial point
-    x0 = np.array([-3, -1, -3, -1])
 
-    # Random initial point
-    #x0 = np.random.uniform(-2,2,4)
+    if point_type == "const":
+
+        x0 = np.array([-3, -1, -3, -1])
+
+    else:
+
+        x0 = np.random.uniform(-2,2,4)
+        print("Random initial point: ", x0)
 
     # Min point
     x_min = np.array([1, 1, 1, 1])
@@ -90,9 +95,18 @@ if __name__ == '__main__':
     tol_f = 1e-10
 
     # Method for step update
-    # msg = "StepFijo"
-    msg = "StepHess"
-    # msg = "Backtracking"
+
+    if step == "fijo":
+
+        msg = "StepFijo"
+
+    elif step == "hess":
+
+        msg = "StepHess"
+
+    else:
+
+        msg = "Backtracking"
 
     # Gradient step size for "StepFijo" method
     step_size = 5e-6

@@ -24,14 +24,18 @@ def H_rosenbrock_2(x):
     return np.array([[-400*x[1] + 1200*x[0]**2 + 2, -400*x[0]], [-400*x[0], 200]])
 
 
-if __name__ == '__main__':
+def run_ros2(step, point_type):
 
     # Initial point
-    x0 = np.array([-1.2, 1])
 
-    # Random initial point
-    #x0 = np.random.uniform(-4,2,2)
-    #print("Random initial point: ", x0)
+    if point_type == "const":
+
+        x0 = np.array([-1.2, 1])
+
+    else:
+
+        x0 = np.random.uniform(-4,2,2)
+        print("Random initial point: ", x0)
 
     # Min point
     x_min = np.array([1, 1])
@@ -49,9 +53,18 @@ if __name__ == '__main__':
     tol_f = 1e-8
 
     # Method for step update
-    # msg = "StepFijo"
-    msg = "StepHess"
-    # msg = "Backtracking"
+
+    if step == "fijo":
+
+        msg = "StepFijo"
+
+    elif step == "hess":
+
+        msg = "StepHess"
+
+    else:
+
+        msg = "Backtracking"
 
     # Gradient step size for "StepFijo" method
     step_size = 2e-3

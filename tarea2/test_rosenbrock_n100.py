@@ -47,15 +47,20 @@ def H_rosenbrock_100(x):
     return hessian
 
 
-if __name__ == '__main__':
+def run_ros100(step, point_type):
 
     # Initial point
-    x0 = np.ones(100)
-    x0[0] = -1.2
-    x0[-2] = -1.2
 
-    # Random initial point
-    #x0 = np.random.uniform(-2,2,100)
+    if point_type == "const":
+
+        x0 = np.ones(100)
+        x0[0] = -1.2
+        x0[-2] = -1.2
+
+    else:
+
+        x0 = np.random.uniform(-2,2,100)
+        print("Random initial point: ", x0)
 
     # Min point
     x_min = np.ones(100)
@@ -73,9 +78,18 @@ if __name__ == '__main__':
     tol_f = 1e-8
 
     # Method for step update
-    # msg = "StepFijo"
-    msg = "StepHess"
-    # msg = "Backtracking"
+
+    if step == "fijo":
+
+        msg = "StepFijo"
+
+    elif step == "hess":
+
+        msg = "StepHess"
+
+    else:
+
+        msg = "Backtracking"
 
     # Gradient step size for "StepFijo" method
     step_size = 1e-5
