@@ -15,8 +15,8 @@
 
 Ejecución de gradiente descendiente con función Rosenberg n = 2, tamaño de paso fijo y punto x inicial [-1.2, 1] fijo
 
-  * test.py -f ros2 -s fijo -p const
+  * python test.py -f ros2 -s fijo -p const
 
 Ejecución de gradiente descendiente con función Wood, tamaño de paso calculado con Backtracking y punto x inicial aleatorio
 
-    * test.py -f wood -s back -p rand
+  * python test.py -f wood -s back -p rand
