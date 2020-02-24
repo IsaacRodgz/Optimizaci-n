@@ -19,4 +19,4 @@ Ejecución de gradiente descendiente con función Rosenberg n = 2, tamaño de pa
 
 Ejecución de gradiente descendiente con función Wood, tamaño de paso calculado con Backtracking y punto x inicial aleatorio
 
-    * test.py -f wood -s back -p rand
+  * test.py -f wood -s back -p rand
