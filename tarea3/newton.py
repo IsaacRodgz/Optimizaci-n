@@ -8,23 +8,6 @@ class Newton:
 
     '''
 
-    Atributes
-    ---------
-    x0 : numpy array
-        Initial point
-    mxitr : int
-        Max. number of iterations
-    tol_g : float
-        Tolerance for gradient norm
-    tol_x : float
-        Tolerance for x's relative error
-    tol_f : float
-        Tolerance for relative error in evaluation of function f
-    f : Function object
-        Objective function with eval, gradient and hessian methods
-    msg : string
-        Step size update method
-
     Returns
     -------
     List
@@ -92,6 +75,9 @@ class Newton:
                 print("\n Invalid step size update method\n")
                 break
 
+            # Make sure hessian is positive definite
+            #hess = self.cholesky_identity(hess)
+
             # Update x value
             x_old = x
             d_k = inv(hess).dot(grad)
@@ -102,7 +88,7 @@ class Newton:
             tol_f_val = np.absolute(f.eval(x) - f.eval(x_old)) / max(1.0, np.absolute(f.eval(x_old)))
             tol_g_val = np.linalg.norm(x_old)
 
-            if k%500 == 0:
+            if k%1 == 0:
                 self.log2(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f.eval(x))
 
             # log(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f(x))
@@ -130,7 +116,93 @@ class Newton:
 
         return xs
 
+    def cholesky_identity(self, H, beta = 1e-3):
+        """Routine to make matrix H positive definite by adding tau to the
+        diagonal until cholesky factorization works without raising
+        any error, i.e., find H_pd = H + tau_k*I such that H_pd is a
+        positive definite matrix.
+
+        Args:
+            H : numpy.array
+                Square matrix to modify until it´s positive definite
+            beta : float
+                Optional parameter for choosing
+
+        Returns
+        -------
+        numpy.array
+            Positive definite matrix H_pd = H + tau_k*I
+        """
+
+        if np.min(H.diagonal()) > 0:
+            tau = 0
+        else:
+            tau = -np.min(H.diagonal()) + beta
+
+        for i in range(100):
+            print("try cholesky %s" % i)
+            try:
+                self.cholesky(H + tau*np.identity(H.shape[0]))
+                break
+
+            except ValueError:
+                tau = max(2*tau, beta)
+
+        return H + tau*np.identity(H.shape[0])
+
+    def cholesky(self, H):
+        """Performs a Cholesky decomposition of H, which must
+        be a symmetric and positive definite matrix.
+
+        Args:
+            H : numpy.array
+                Square matrix assumed to be symmetric and positive definie
+
+        Returns
+        -------
+        numpy.array
+            cholesky decomposition matrix of H
+        """
+
+        n = H.shape[0]
+
+        L = np.zeros((n, n))
+
+        for i in range(n):
+            for j in range(i+1):
+
+                sum = np.sum(L[i][k] * L[j][k] for k in range(j))
+
+                if i == j:  # Diagonal entries
+                    if H[j][j] - sum < 0:
+                        raise Exception('ValueError')
+                    L[j][j] = np.sqrt(H[j][j] - sum)
+
+                else:
+                    L[i][j] = (H[i][j] - sum)/L[j][j]
+
+        return L
+
     def backtracking(self, x, grad, f, tau, beta):
+        """Calculate step size through backtracking
+
+        Args:
+            x : numpy.array
+                Current iteration point
+            grad : numpy.array
+                Gradient of function f at point x
+            f : Function object
+                Function to minimize
+            tau : float
+                Algorithm parameter
+            beta : float
+                Algorithm parameter
+
+        Returns
+        -------
+        float
+            step size found by backtracking
+        """
 
         alpha = 1
 
@@ -143,13 +215,20 @@ class Newton:
         """Print to console status of current iteration
 
         Args:
-            x_old (numpy array): Previous solution point
-            grad (numpy array): Gradient of the function at x_old
-            x (numpy array): Solution point after gradient step
-            curr_iter (int): Current number of iteration
-            tol_g (float): Tolerance for gradient norm
-            tol_x (float): Tolerance for x's relative error
-            tol_f (float): Tolerance for relative error in evaluation of function f
+            x_old : numpy.array
+                Previous solution point
+            grad : numpy.array
+                Gradient of the function at x_old
+            x : numpy.array
+                Solution point after gradient step
+            curr_iter : int
+                Current number of iteration
+            tol_g : float
+                Tolerance for gradient norm
+            tol_x : float
+                Tolerance for x's relative error
+            tol_f : float
+                Tolerance for relative error in evaluation of function f
 
         Output: Print to console status of gradient descent
         """
@@ -166,13 +245,20 @@ class Newton:
         """Print to console status of current iteration
 
         Args:
-            x_old (numpy array): Previous solution point
-            grad (numpy array): Gradient of the function at x_old
-            x (numpy array): Solution point after gradient step
-            curr_iter (int): Current number of iteration
-            tol_g (float): Tolerance for gradient norm
-            tol_x (float): Tolerance for x's relative error
-            tol_f (float): Tolerance for relative error in evaluation of function f
+            x_old : numpy.array
+                Previous solution point
+            grad : numpy.array
+                Gradient of the function at x_old
+            x : numpy.array
+                Solution point after gradient step
+            curr_iter : int
+                Current number of iteration
+            tol_g : float
+                Tolerance for gradient norm
+            tol_x : float
+                Tolerance for x's relative error
+            tol_f : float
+                Tolerance for relative error in evaluation of function f
 
         Output: Print to console status of gradient descent
         """

@@ -15,8 +15,8 @@
 
 Ejecución de Newton con lambda = 100, tamaño de paso fijo y punto x inicial [1, 1, ..., 1]
 
-  * run.py -l 100 -s fijo -p const
+  * python run.py -l 100 -s fijo -p const
 
 Ejecución de Newton con lambda = 1, tamaño de paso con matriz hessiana y punto x inicial aleatorio
 
-  * run.py -l 1 -s hess -p rand
+  * python run.py -l 1 -s hess -p rand
