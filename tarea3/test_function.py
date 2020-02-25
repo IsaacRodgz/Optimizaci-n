@@ -31,7 +31,7 @@ def run(step, point_type, lambda_p):
     else:
         msg = "Backtracking"
 
-    step_size = 1e-5  # Gradient step size for "StepFijo" method
+    step_size = 1e-3  # Gradient step size for "StepFijo" method
 
     # Estimate minimum point through Newton method
     newton_alg = Newton()
