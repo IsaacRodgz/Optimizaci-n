@@ -90,8 +90,7 @@ class Newton:
 
             if k%1 == 0:
                 self.log2(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f.eval(x))
-
-            # log(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f(x))
+                # self.log(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f(x))
 
             k += 1  # Update iteration counter
 
@@ -112,7 +111,7 @@ class Newton:
                 print("\n Algorithm reached max num of iterations\n")
                 break
 
-        self.log2(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f.eval(x))
+        #self.log2(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f.eval(x))
 
         return xs
 

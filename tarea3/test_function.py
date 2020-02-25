@@ -17,7 +17,7 @@ def run(step, point_type, lambda_p, method):
     else:
         x0 = np.random.uniform(-2, 2, n)
 
-    mxitr = 10000  # Max number of iterations
+    mxitr = 50000  # Max number of iterations
 
     tol_g = 1e-8  # Tolerance for gradient
 
@@ -35,7 +35,7 @@ def run(step, point_type, lambda_p, method):
     else:
         msg = "Backtracking"
 
-    step_size = 1e-3  # Gradient step size for "StepFijo" method
+    step_size = 1  # Gradient step size for "StepFijo" method
 
     # Estimate minimum point through optimization method chosen
     if method == "gd":
