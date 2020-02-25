@@ -11,6 +11,8 @@ if __name__ == '__main__':
 
     parser.add_argument('-l', '--lambda_', default=1, type=int, help='Function parameter: 1, 100, 1000')
 
+    parser.add_argument('-m', '--method', default="newton", type=str, help='Optimization method: gd, newton')
+
     args = parser.parse_args()
 
-    run(args.step, args.point, args.lambda_)
+    run(args.step, args.point, args.lambda_, args.method)
