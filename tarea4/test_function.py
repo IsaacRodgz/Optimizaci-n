@@ -30,11 +30,11 @@ def run(step, point_type, method, function):
             x0[0] = -1.2
             x0[-2] = -1.2
         elif function == "mnist":
-            x0 = 0.001*np.ones(n)
+            x0 = np.ones(n)
         else:
             x0 = np.array([-3, -1, -3, -1])
     elif point_type == "rand":
-        x0 = np.random.uniform(-2, 2, n)
+        x0 = np.random.uniform(-1, 1, n)
     else:
         print("\n Error, invalid type of point")
         quit()
@@ -52,8 +52,6 @@ def run(step, point_type, method, function):
         print("\n Error, invalid step method")
         quit()
 
-    step_size = 1  # Gradient step size for "StepFijo" method
-
     # Estimate minimum point through optimization method chosen
     if method == "gd":
         alg = GD()
@@ -63,7 +61,7 @@ def run(step, point_type, method, function):
         print("\n Error: Invalid optimization method: %s\n" % method)
         quit()
 
-    xs = alg.iterate(x0, mxitr, tol_g, tol_x, tol_f, f, step, step_size)
+    xs = alg.iterate(x0, mxitr, tol_g, tol_x, tol_f, f, step, function)
 
     # Print point x found and function value f(x)
     # print("\nPoint x found: ", xs[-1])

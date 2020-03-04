@@ -40,6 +40,7 @@ class MNIST:
         self.train_data  = np.c_[self.train_data, p]
 
         self.n = self.train_data.shape[1]
+        self.data_size = self.train_data.shape[0]
 
     def get_size(self):
         """Gets size of flattened image
@@ -62,12 +63,19 @@ class MNIST:
 
         sum = 0
 
-        for i in range(self.n):
+        for i in range(self.data_size):
 
             yi = self.train_labels[i]
             pi = self.sigmoid(self.train_data[i], beta)
 
-            sum += yi*np.log10(pi) + (1-yi)*np.log10(1-pi)
+            if yi == 1:
+                if pi == 0:
+                    pi = 1e-15
+                sum += yi*np.log10(pi)
+            else:
+                if pi == 1:
+                    pi = 1-1e-15
+                sum += (1-yi)*np.log10(1-pi)
 
         return sum
 
@@ -80,12 +88,13 @@ class MNIST:
             Weights of logistic regression
         """
 
-        grad = []
+        grad = np.zeros(self.n)
 
         for i in range(self.n):
-            grad.append(self.train_labels[i] - self.sigmoid(self.train_data[i], beta))
+            for j in range(self.data_size):
+                grad[i] += (self.train_labels[j] - self.sigmoid(self.train_data[j], beta))*self.train_data[j][i]
 
-        return np.array(grad)
+        return grad
 
     def error(self, beta):
         """Evaluates classification error on all the dataset
