@@ -46,10 +46,10 @@ class GD:
 
         xs = []  # List to save points x
 
-        alpha = 1e-3 # Initial step size
+        alpha = 1e-2 # Initial step size
 
         if msg == "zhang":
-            return self.zhang_hager(x0, f, tol_f, mxitr)
+            return self.zhang_hager(x0, f, tol_f, tol_g, mxitr, function)
 
         # Iterate while max. num. of iters has not been reached
         while k < mxitr:
@@ -79,20 +79,24 @@ class GD:
             if function == "mnist":
                 error = f.error(x)
                 loss = f.eval(x)
+                tol_g_val = np.linalg.norm(grad)
 
-                self.log(k, error, loss)
+                self.log(k, error, loss, tol_g_val)
 
                 if error < tol_f:
                     print("\n Algorithm converged in error\n")
+                    break
+                if tol_g_val < tol_g:
+                    print("\n Algorithm converged in g\n")
                     break
 
             else:
                 # Calculate different tolerance criteria
                 tol_x_val = np.linalg.norm(x - x_old) / max(1.0, np.linalg.norm(x_old))
                 tol_f_val = np.absolute(f.eval(x) - f.eval(x_old)) / max(1.0, np.absolute(f.eval(x_old)))
-                tol_g_val = np.linalg.norm(x_old)
+                tol_g_val = np.linalg.norm(grad)
 
-                if k%1 == 0:
+                if k%100 == 0:
                     self.log2(x_old, grad, x, k, tol_g_val, tol_x_val, f.eval(x))
 
                 # Check for convergence
@@ -240,7 +244,7 @@ class GD:
 
         return s_k.dot(s_k)/(s_k.dot(y_k))
 
-    def zhang_hager(self, x0, f, tol_f, mxitr):
+    def zhang_hager(self, x0, f, tol_f, tol_g, mxitr, function):
         """Iterate over x_{k+1} = x_k - alpha_k * d_k through Zhang-Hager
         Where d_k = gradient(f(x_k))
 
@@ -270,8 +274,26 @@ class GD:
             xs.append(x) #  Save current point
             grad = f.gradient(x)  # Get gradient evaluated at point x
 
-            # Find alpha through cuadratic interpolation
-            alpha = self.cuadratic_interpolation(x, -grad, f, 0.1, c)
+            if k == 0:
+                alpha = 1e-3
+            else:
+                alpha = self.barzilai_borwein(xs, f)
+                # Find alpha through cuadratic interpolation
+                c_1 = 1e-4
+                alpha_0 = alpha
+                d = -grad
+                phi_p0 = -d.dot(d)
+                phi_0 = f.eval(x)
+                phi_alpha_0 = f.eval(x+alpha_0*d)
+
+                alpha_1 = (-(alpha_0**2)*phi_p0) / (2*(phi_alpha_0 - phi_p0*alpha_0 - phi_0))
+
+                while f.eval(x+alpha_1*d) > c + c_1*alpha_1*(phi_p0):
+                    alpha_0 = alpha_1
+                    phi_alpha_0 = f.eval(x+alpha_0*d)
+                    alpha_1 = (-(alpha_0**2)*phi_p0) / (2*(phi_alpha_0 - phi_p0*alpha_0 - phi_0))
+
+                alpha = alpha_1
 
             # Update solution
             x_old = x
@@ -282,25 +304,40 @@ class GD:
             q = eta*q + 1
             c = (eta*q_old*c + f.eval(x))/q
 
-            # Calculate different tolerance criteria
-            tol_x_val = np.linalg.norm(x - x_old) / max(1.0, np.linalg.norm(x_old))
-            tol_f_val = np.absolute(f.eval(x) - f.eval(x_old)) / max(1.0, np.absolute(f.eval(x_old)))
-            tol_g_val = np.linalg.norm(x_old)
+            if function == "mnist":
+                error = f.error(x)
+                loss = f.eval(x)
+                tol_g_val = np.linalg.norm(grad)
 
-            if k%1 == 0:
-                self.log2(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f.eval(x))
+                self.log(k, error, loss, tol_g_val)
+
+                if error < tol_f:
+                    print("\n Algorithm converged in error\n")
+                    break
+                if tol_g_val < tol_g:
+                    print("\n Algorithm converged in g\n")
+                    break
+            else:
+                # Calculate different tolerance criteria
+                tol_x_val = np.linalg.norm(x - x_old) / max(1.0, np.linalg.norm(x_old))
+                tol_f_val = np.absolute(f.eval(x) - f.eval(x_old)) / max(1.0, np.absolute(f.eval(x_old)))
+                tol_g_val = np.linalg.norm(x_old)
+
+                if k%750 == 0:
+                    self.log2(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f.eval(x))
 
             k += 1
 
         return xs
 
-    def log(self, curr_iter, error, loss):
+    def log(self, curr_iter, error, loss, grad_norm):
         """
         """
         print("-----------------------------------")
         print("\n Iter: ", curr_iter)
-        print("\n error: %s" % error)
-        print("\n loss: %s" % loss)
+        print(" error: %s" % error)
+        print(" loss: %s" % loss)
+        print(" grad norm: %s" % grad_norm)
 
     def log2(self, x_old, grad, x, curr_iter, tol_g_val, tol_x_val, tol_f_val):
         """Print to console status of current iteration

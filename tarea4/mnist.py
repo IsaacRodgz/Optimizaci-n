@@ -26,6 +26,7 @@ class MNIST:
             u.encoding = 'latin1'
             train_set, val_set, test_set = u.load()
 
+        # Extract 0's and 1's from training dataset
         zeros = np.where(train_set[1] == 0)[0]
         ones = np.where(train_set[1] == 1)[0]
         nums_index = np.concatenate((zeros, ones))
@@ -38,6 +39,18 @@ class MNIST:
         p = np.zeros(self.train_data.shape[0])
         p = p.reshape((self.train_data.shape[0],1))
         self.train_data  = np.c_[self.train_data, p]
+
+        # Extract 0's and 1's from test dataset
+        zeros = np.where(test_set[1] == 0)[0]
+        ones = np.where(test_set[1] == 1)[0]
+        nums_index = np.concatenate((zeros, ones))
+        self.test_data  = test_set[0][nums_index]
+        self.test_labels = test_set[1][nums_index]
+
+        # Append 1 in last column
+        p = np.zeros(self.test_data.shape[0])
+        p = p.reshape((self.test_data.shape[0],1))
+        self.test_data  = np.c_[self.test_data, p]
 
         self.n = self.train_data.shape[1]
         self.data_size = self.train_data.shape[0]
@@ -107,14 +120,14 @@ class MNIST:
 
         sum = 0
 
-        for i in range(self.n):
+        for i in range(self.test_data.shape[0]):
 
-            yi = self.train_labels[i]
-            pi = round(self.sigmoid(self.train_data[i], beta))
+            yi = self.test_labels[i]
+            pi = round(self.sigmoid(self.test_data[i], beta))
 
             sum += abs(pi - yi)
 
-        return sum/self.n
+        return sum/self.test_data.shape[0]
 
 """
 def p(x, beta, beta0):
