@@ -4,6 +4,7 @@ from newton import Newton
 from gradient_descent import GD
 from Rosenbrock import Rosenbrock
 from Wood import Wood
+from mnist import MNIST
 
 
 def run(step, point_type, method, function):
@@ -15,6 +16,9 @@ def run(step, point_type, method, function):
     elif function == "wood":
         n = 4
         f = Wood()
+    elif function == "mnist":
+        f = MNIST()
+        n = f.get_size()
     else:
         print("\n Error, invalid function")
         quit()
@@ -25,6 +29,8 @@ def run(step, point_type, method, function):
             x0 = np.ones(n)
             x0[0] = -1.2
             x0[-2] = -1.2
+        elif function == "mnist":
+            x0 = 0.001*np.ones(n)
         else:
             x0 = np.array([-3, -1, -3, -1])
     elif point_type == "rand":

@@ -80,14 +80,14 @@ class GD:
             tol_x_val = np.linalg.norm(x - x_old) / max(1.0, np.linalg.norm(x_old))
             tol_f_val = np.absolute(f.eval(x) - f.eval(x_old)) / max(1.0, np.absolute(f.eval(x_old)))
             tol_g_val = np.linalg.norm(x_old)
+            tol_mnist = f.error(x)
 
             if k%1 == 0:
-                self.log2(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f.eval(x))
+                self.log2(x_old, grad, x, k, tol_g_val, tol_mnist, f.eval(x))
 
             #log(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f(x))
 
             # Update iteration counter
-
             k += 1
 
             # Check for convergence

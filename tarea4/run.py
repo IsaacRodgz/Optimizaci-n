@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-m', '--method', default="gd", type=str, help='Optimization method: gd, newton')
 
-    parser.add_argument('-f', '--function', default="rosenbrock", type=str, help='Function to minimize: rosenbrock, wood')
+    parser.add_argument('-f', '--function', default="rosenbrock", type=str, help='Function to minimize: rosenbrock, wood, mnist')
 
     args = parser.parse_args()
 
