@@ -46,7 +46,7 @@ class GD:
 
         xs = []  # List to save points x
 
-        alpha = 1e-2 # Initial step size
+        alpha = 1e-3 # Initial step size
 
         if msg == "zhang":
             return self.zhang_hager(x0, f, tol_f, tol_g, mxitr, function)

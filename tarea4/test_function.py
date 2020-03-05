@@ -45,7 +45,7 @@ def run(step, point_type, method, function):
 
     tol_x = 1e-8  # Tolerance for x
 
-    tol_f = 1e-8  # Tolerance for function
+    tol_f = 1e-3  # Tolerance for function
 
     # Method for step update
     if step not in ["cubic", "barzilai", "zhang"]:
@@ -70,3 +70,8 @@ def run(step, point_type, method, function):
     plt.plot(np.array(range(n)), xs[-1])
     plt.legend(['x*'], loc = 'best')
     plt.show()
+
+    if function == "mnist":
+        im = xs[-1][:-1].reshape(28, -1)
+        plt.imshow(im, cmap=plt.cm.gray)
+        plt.show()
