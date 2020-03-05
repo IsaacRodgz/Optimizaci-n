@@ -49,7 +49,7 @@ class GD:
         alpha = 1e-3 # Initial step size
 
         if msg == "zhang":
-            return self.zhang_hager(x0, f, tol_f, tol_g, mxitr, function)
+            return self.zhang_hager(x0, f, tol_f, tol_g, tol_x, mxitr, function)
 
         # Iterate while max. num. of iters has not been reached
         while k < mxitr:
@@ -244,7 +244,7 @@ class GD:
 
         return s_k.dot(s_k)/(s_k.dot(y_k))
 
-    def zhang_hager(self, x0, f, tol_f, tol_g, mxitr, function):
+    def zhang_hager(self, x0, f, tol_f, tol_g, tol_x, mxitr, function):
         """Iterate over x_{k+1} = x_k - alpha_k * d_k through Zhang-Hager
         Where d_k = gradient(f(x_k))
 
@@ -262,7 +262,7 @@ class GD:
             a list with all points x traversed during Zhang-Hager descent
         """
 
-        eta = 0.1
+        eta = 0.5
         c = f.eval(x0)
         q = 1
         x = x0
@@ -277,23 +277,54 @@ class GD:
             if k == 0:
                 alpha = 1e-3
             else:
-                alpha = self.barzilai_borwein(xs, f)
+                #alpha = self.barzilai_borwein(xs, f)
                 # Find alpha through cuadratic interpolation
                 c_1 = 1e-4
-                alpha_0 = alpha
                 d = -grad
+                alpha_0 = alpha
+
                 phi_p0 = -d.dot(d)
                 phi_0 = f.eval(x)
                 phi_alpha_0 = f.eval(x+alpha_0*d)
 
-                alpha_1 = (-(alpha_0**2)*phi_p0) / (2*(phi_alpha_0 - phi_p0*alpha_0 - phi_0))
+                # Check if alpha_init satisfies armijo conditions
 
-                while f.eval(x+alpha_1*d) > c + c_1*alpha_1*(phi_p0):
-                    alpha_0 = alpha_1
-                    phi_alpha_0 = f.eval(x+alpha_0*d)
+                if phi_alpha_0 <= phi_0 + c_1*alpha_0*(phi_p0):
+                    alpha = alpha_0
+                else:
+
                     alpha_1 = (-(alpha_0**2)*phi_p0) / (2*(phi_alpha_0 - phi_p0*alpha_0 - phi_0))
 
-                alpha = alpha_1
+                    # Check if alpha_1, obtained by cuadratic interpolation, satisfies armijo conditions
+
+                    phi_alpha_1 = f.eval(x+alpha_1*d)
+
+                    if phi_alpha_1 > phi_0 + c_1*alpha_1*(phi_p0):
+                        alpha = alpha_1
+                    else:
+                        # Perform cubic interpolation
+                        constant = 1/(alpha_0**2*alpha_1**2*(alpha_1-alpha_0))
+                        m1 = np.array([[alpha_0**2, -alpha_1**2], [-alpha_0**3, alpha_1**3]])
+                        m2 = np.array([phi_alpha_1-phi_p0*alpha_1-phi_0, phi_alpha_0-phi_p0*alpha_0-phi_0])
+
+                        a, b = constant*m1.dot(m2)
+                        c = phi_p0
+
+                        alpha_2 = (-b + np.sqrt(b**2 - 3*a*c)) / (3*a)
+
+                        while f.eval(x+alpha_2*d) > phi_0 + c_1*alpha_2*(phi_p0):
+                            alpha_0 = alpha_1
+                            alpha_1 = alpha_2
+
+                            constant = 1/(alpha_0**2*alpha_1**2*(alpha_1-alpha_0))
+                            m1 = np.array([[alpha_0**2, -alpha_1**2], [-alpha_0**3, alpha_1**3]])
+                            m2 = np.array([phi_alpha_1-phi_p0*alpha_1-phi_0, phi_alpha_0-phi_p0*alpha_0-phi_0])
+
+                            a, b = constant*m1.dot(m2)
+
+                            alpha_2 = (-b + np.sqrt(b**2 - 3*a*c)) / (3*a)
+
+                        alpha = alpha_2
 
             # Update solution
             x_old = x
@@ -321,10 +352,27 @@ class GD:
                 # Calculate different tolerance criteria
                 tol_x_val = np.linalg.norm(x - x_old) / max(1.0, np.linalg.norm(x_old))
                 tol_f_val = np.absolute(f.eval(x) - f.eval(x_old)) / max(1.0, np.absolute(f.eval(x_old)))
-                tol_g_val = np.linalg.norm(x_old)
+                tol_g_val = np.linalg.norm(grad)
 
-                if k%750 == 0:
+                if k%2000 == 0:
                     self.log2(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f.eval(x))
+
+                # Check for convergence
+                if tol_x_val < tol_x:
+                    print("\n Algorithm converged in x\n")
+                    break
+
+                if tol_f_val < tol_f:
+                    print("\n Algorithm converged in f\n")
+                    break
+
+                if tol_g_val < tol_g:
+                    print("\n Algorithm converged in g\n")
+                    break
+
+                if k >= mxitr:
+                    print("\n Algorithm reached max num of iterations\n")
+                    break
 
             k += 1
 

@@ -45,7 +45,10 @@ def run(step, point_type, method, function):
 
     tol_x = 1e-8  # Tolerance for x
 
-    tol_f = 1e-3  # Tolerance for function
+    if function == "mnist":
+        tol_f = 1e-3  # Tolerance for function
+    else:
+        tol_f = 1e-8  # Tolerance for function
 
     # Method for step update
     if step not in ["cubic", "barzilai", "zhang"]:

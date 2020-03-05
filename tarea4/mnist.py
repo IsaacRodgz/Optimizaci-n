@@ -65,6 +65,10 @@ class MNIST:
 
         return 1/(1 + np.exp(-x.dot(beta)))
 
+    def sigmoid(self, x, beta):
+
+        return 1/(1 + np.exp(-x.dot(beta)))
+
     def eval(self, beta):
         """Evaluates cost function
 
@@ -74,23 +78,12 @@ class MNIST:
             Weights of logistic regression
         """
 
-        sum = 0
+        yi = self.train_labels
+        pi = self.sigmoid(self.train_data, beta)
+        check1 = (pi == 0).astype(np.float)*(1e-15)
+        check2 = ((1-pi) == 0).astype(np.float)*(1e-15)
 
-        for i in range(self.data_size):
-
-            yi = self.train_labels[i]
-            pi = self.sigmoid(self.train_data[i], beta)
-
-            if yi == 1:
-                if pi == 0:
-                    pi = 1e-15
-                sum += yi*np.log10(pi)
-            else:
-                if pi == 1:
-                    pi = 1-1e-15
-                sum += (1-yi)*np.log10(1-pi)
-
-        return sum
+        return yi.dot(np.log10(pi+check1)) + (1-yi).dot(np.log10((1-pi)+check2))
 
     def gradient(self, beta):
         """Evaluates gradient of cost function
@@ -101,16 +94,13 @@ class MNIST:
             Weights of logistic regression
         """
 
-        grad = np.zeros(self.n)
+        yi = self.train_labels
+        pi = self.sigmoid(self.train_data, beta)
 
-        for i in range(self.n):
-            for j in range(self.data_size):
-                grad[i] += (self.train_labels[j] - self.sigmoid(self.train_data[j], beta))*self.train_data[j][i]
-
-        return grad
+        return self.train_data.T.dot(yi-pi)
 
     def error(self, beta):
-        """Evaluates classification error on all the dataset
+        """Evaluates classification error on all the test dataset
 
         Parameters
         ----------
@@ -128,34 +118,3 @@ class MNIST:
             sum += abs(pi - yi)
 
         return sum/self.test_data.shape[0]
-
-"""
-def p(x, beta, beta0):
-
-    return 1/(1 + np.exp(-x.dot(beta) - beta0))
-
-with gzip.open('mnist.pkl.gz','rb') as f:
-    u = pickle._Unpickler(f)
-    u.encoding = 'latin1'
-    train_set, val_set, test_set = u.load()
-
-print(train_set[0].shape, train_set[1].shape)
-print(val_set[0].shape, val_set[1].shape)
-print(test_set[0].shape, test_set[1].shape)
-
-zeros = np.where(train_set[1] == 0)[0]
-ones = np.where(train_set[1] == 1)[0]
-nums_index = np.concatenate((zeros, ones))
-np.random.shuffle(nums_index)
-
-train_images = train_set[0][nums_index]
-train_labels = train_set[1][nums_index]
-
-print(train_images.shape)
-print(train_labels.shape)
-idx = 1 # index of the image
-im = train_images[idx].reshape(28, -1)
-plt.imshow(im, cmap=plt.cm.gray)
-plt.show()
-print('Label: ', train_labels[idx])
-"""

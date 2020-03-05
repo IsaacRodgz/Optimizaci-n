@@ -1,4 +1,4 @@
-# Tarea 3
+# Tarea 4
 ## Isaac Rodríguez Bribiesca
 
 * Uso:
@@ -8,17 +8,16 @@
 
 * Parámetros:
 
-    * Tipo de tamaño de paso: fijo, hess, back [-s]
+    * Tipo de tamaño de paso: cubic, barzilai, zhang [-s]
     * Tipo de punto incial x a usar: const, rand [-p]
-    * Valor parámetro lambda de función: 1, 100, 1000 [-l]
-    * Metodo de optimizacion a usar: newton, gd [-m]
+    * Función a optimizar: rosenbrock, wood, mnist [-p]
 
 * Ejemplos:
 
-Ejecución de Newton con lambda = 1000, tamaño de paso fijo con valor 1 y punto x inicial fijo [1, 1, ..., 1]
+Ejecución de gradiente descendiente para optimizar regresión logística con el dataset de MNIST, con tamaño de paso calculado mediante Barzilai-Borwein y punto x inicial fijo [1, 1, ..., 1].
 
-  * python run.py -s fijo -p const -m newton -l 1000
+  * python run.py -p const -s barzilai -f mnist
 
-Ejecución de Gradiente Descendiente con lambda = 1, tamaño de paso con matriz Hessiana y punto x inicial fijo [1, 1, ..., 1]
+Ejecución de gradiente descendiente para optimizar la función Wood,  con tamaño de paso calculado mediante Zhang-Hager y punto x inicial fijo [-3, -1, -3, -1]
 
-  * python run.py -s hess -p const -m gd -l 1
+  * python run.py -p const -s zhang -f wood
