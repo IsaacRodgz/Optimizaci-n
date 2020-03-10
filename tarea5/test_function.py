@@ -6,14 +6,14 @@ from Rosenbrock import Rosenbrock
 
 def run(step, point_type):
 
-    n = 2
+    n = 100
     f = Rosenbrock(n)
 
     # Initial point
     if point_type == "const":
         x0 = np.ones(n)
         x0[0] = -1.2
-        #x0[-2] = -1.2
+        x0[-2] = -1.2
     else:
         x0 = np.random.uniform(-2, 2, n)
 

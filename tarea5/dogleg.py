@@ -20,7 +20,7 @@ class Dogleg:
             xs.append(x)  # Save current point
             grad = f.gradient(x)
             # Calculate step size depending on value of msg
-            pk = self.get_step_pd(x, f, delta)
+            pk = self.get_step_norm(x, f, delta)
             # Evaluate quality of the quadratic model
             rho_k = (f.eval(x)-f.eval(x+pk))/(f.mk(x)-f.mk(x, pk))
             # Update radius of confidence region
