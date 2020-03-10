@@ -20,7 +20,7 @@ class Dogleg:
             xs.append(x)  # Save current point
             grad = f.gradient(x)
             # Calculate step size depending on value of msg
-            pk = self.get_step(x, f, delta)
+            pk = self.get_step_pd(x, f, delta)
             # Evaluate quality of the quadratic model
             rho_k = (f.eval(x)-f.eval(x+pk))/(f.mk(x)-f.mk(x, pk))
             # Update radius of confidence region
@@ -28,7 +28,7 @@ class Dogleg:
                 delta *= 0.25
             else:
                 if rho_k > 0.75 and np.linalg.norm(pk) == delta0:
-                    delta = np.min(2*delta, delta0)
+                    delta = min(2*delta, delta0)
 
             # Make step forward gradient direction
             print("rho_k: ", rho_k)
@@ -64,7 +64,25 @@ class Dogleg:
 
         return xs
 
-    def get_step(self, x, f, delta):
+    def get_step_cauchy(self, x, f, delta):
+        grad = f.gradient(x)
+        hess = f.hessian(x)
+
+        # Cauchy step
+        return self.get_cauchy_step(x, f, grad, hess, delta)
+
+    def get_step_norm(self, x, f, delta):
+        grad = f.gradient(x)
+        hess = f.hessian(x)
+
+        p_b = inv(hess).dot(grad)
+
+        if np.linalg.norm(p_b) <= delta:
+            return p_b
+        else:
+            return self.get_cauchy_step(x, f, grad, hess, delta)
+
+    def get_step_pd(self, x, f, delta):
         grad = f.gradient(x)
         hess = f.hessian(x)
 
@@ -115,7 +133,7 @@ class Dogleg:
         if prod <= 0:
             tau = 1
         else:
-            tau = np.min(1, (np.linalg.norm(grad)**3)/(delta*prod))
+            tau = min(1, (np.linalg.norm(grad)**3)/(delta*prod))
 
         return tau*p_s
 

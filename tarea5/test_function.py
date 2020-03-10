@@ -6,18 +6,18 @@ from Rosenbrock import Rosenbrock
 
 def run(step, point_type):
 
-    n = 10
+    n = 2
     f = Rosenbrock(n)
 
     # Initial point
     if point_type == "const":
         x0 = np.ones(n)
         x0[0] = -1.2
-        x0[-2] = -1.2
+        #x0[-2] = -1.2
     else:
         x0 = np.random.uniform(-2, 2, n)
 
-    mxitr = 100  # Max number of iterations
+    mxitr = 50000  # Max number of iterations
     tol_g = 1e-8  # Tolerance for gradient
     tol_x = 1e-8  # Tolerance for x
     tol_f = 1e-8  # Tolerance for function
