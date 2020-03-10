@@ -111,6 +111,8 @@ class Dogleg:
         if np.linalg.norm(p_b) <= delta:
             return p_b
         # Calculate intercept between Dogleg trajectory and confidence region
+        elif np.linalg.norm(p_u) >= delta:
+            return (delta/np.linalg.norm(p_u))*p_u
         else:
             diff = p_b-p_u
             a = diff.dot(diff)
