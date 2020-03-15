@@ -23,7 +23,7 @@ def run(step, point_type):
     tol_f = 1e-8  # Tolerance for function
 
     alg = Dogleg()
-    xs = alg.iterate(x0, mxitr, tol_g, tol_x, tol_f, f)
+    xs = alg.iterate(x0, mxitr, tol_g, tol_x, tol_f, f, step)
 
     plt.plot(np.array(range(n)), xs[-1])
     plt.legend(['x*'], loc = 'best')

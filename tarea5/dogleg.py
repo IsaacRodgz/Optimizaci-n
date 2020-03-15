@@ -1,26 +1,36 @@
 import numpy as np
 from numpy.linalg import inv
-from scipy.linalg import ldl
+from scipy.linalg import cholesky
+from numpy.linalg import LinAlgError
 
 
 class Dogleg:
 
-    def iterate(self, x0, mxitr, tol_g, tol_x, tol_f, f):
+    def iterate(self, x0, mxitr, tol_g, tol_x, tol_f, f, step):
 
         k = 0  # Start iteration at 0
         x = x0  # Start with initial point
         xs = []  # List to save points
         eta = 0.1
-        delta0 = 0.1
-        delta = delta0
+        delta0 = 100
+        delta = 1
 
         # Iterate while max. num. of iters has not been reached
         while k < mxitr:
 
             xs.append(x)  # Save current point
             grad = f.gradient(x)
-            # Calculate step size depending on value of msg
-            pk = self.get_step_norm(x, f, delta)
+
+            # Calculate step size depending on value of step
+            if step == '1':
+                pk = self.get_step_cauchy(x, f, delta)
+            elif step == '2':
+                pk = self.get_step_norm(x, f, delta)
+            elif step == '3':
+                pk = self.get_step_pd(x, f, delta)
+            else:
+                print("\n Paso no valido")
+                break
             # Evaluate quality of the quadratic model
             rho_k = (f.eval(x)-f.eval(x+pk))/(f.mk(x)-f.mk(x, pk))
             # Update radius of confidence region
@@ -89,9 +99,9 @@ class Dogleg:
         # Check if hess matrix is positive definite
         is_pd = False
         try:
-            ldl(hess)
+            cholesky(hess)
             is_pd = True
-        except ValueError:
+        except LinAlgError:
             pass
 
         if is_pd:  # Dogleg step
@@ -105,7 +115,7 @@ class Dogleg:
         p_u = -alpha_u*grad
 
         # Complete step with hess positive definite
-        p_b = inv(hess).dot(grad)
+        p_b = -inv(hess).dot(grad)
 
         # Check if complete step is inside confidence region
         if np.linalg.norm(p_b) <= delta:
