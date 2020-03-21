@@ -18,7 +18,7 @@ def run(method, point_type):
     else:
         x0 = np.random.uniform(-2, 2, n)
 
-    mxitr = 500  # Max number of iterations
+    mxitr = 200  # Max number of iterations
     tol_g = 1e-8  # Tolerance for gradient
     tol_x = 1e-8  # Tolerance for x
     tol_f = 1e-8  # Tolerance for function

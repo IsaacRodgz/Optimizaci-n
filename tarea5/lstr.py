@@ -12,8 +12,8 @@ class LSTR:
         x_old = np.zeros(x.shape[0])
         xs = []  # List to save points
         eta = 0.1
-        delta0 = 0.1
-        delta = delta0
+        delta0 = 10
+        delta = 1
 
         # Iterate while max. num. of iters has not been reached
         while k < mxitr:
@@ -73,7 +73,9 @@ class LSTR:
 
         while i < iters and np.linalg.norm(d) != 0:
 
-            if d.dot(f.hessian(x)).dot(d) < 0:
+            hess = f.hessian(x)
+
+            if d.dot(hess).dot(d) < 0:
                 a = np.linalg.norm(d)**2
                 b = 2*z.dot(d)
                 c = np.linalg.norm(z)**2 - delta**2
@@ -82,7 +84,7 @@ class LSTR:
                 return z + tau*d
 
             else:
-                alpha = -(f.gradient(x).dot(d))/(d.dot(f.hessian(x)).dot(d))
+                alpha = -(f.gradient(x).dot(d)+z.dot(hess).dot(z))/(d.dot(hess).dot(d))
                 z_old = z
                 z = z + alpha*d
 
