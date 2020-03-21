@@ -1,26 +1,36 @@
 import numpy as np
 from numpy.linalg import inv
-from scipy.linalg import ldl
+from scipy.linalg import cholesky
+from numpy.linalg import LinAlgError
 
 
 class Dogleg:
 
-    def iterate(self, x0, mxitr, tol_g, tol_x, tol_f, f):
+    def iterate(self, x0, mxitr, tol_g, tol_x, tol_f, f, step):
 
         k = 0  # Start iteration at 0
         x = x0  # Start with initial point
         xs = []  # List to save points
         eta = 0.1
-        delta0 = 0.1
-        delta = delta0
+        delta0 = 100
+        delta = 1
 
         # Iterate while max. num. of iters has not been reached
         while k < mxitr:
 
             xs.append(x)  # Save current point
             grad = f.gradient(x)
-            # Calculate step size depending on value of msg
-            pk = self.get_step(x, f, delta)
+
+            # Calculate step size depending on value of step
+            if step == '1':
+                pk = self.get_step_cauchy(x, f, delta)
+            elif step == '2':
+                pk = self.get_step_norm(x, f, delta)
+            elif step == '3':
+                pk = self.get_step_pd(x, f, delta)
+            else:
+                print("\n Paso no valido")
+                break
             # Evaluate quality of the quadratic model
             rho_k = (f.eval(x)-f.eval(x+pk))/(f.mk(x)-f.mk(x, pk))
             # Update radius of confidence region
@@ -28,7 +38,7 @@ class Dogleg:
                 delta *= 0.25
             else:
                 if rho_k > 0.75 and np.linalg.norm(pk) == delta0:
-                    delta = np.min(2*delta, delta0)
+                    delta = min(2*delta, delta0)
 
             # Make step forward gradient direction
             print("rho_k: ", rho_k)
@@ -64,16 +74,34 @@ class Dogleg:
 
         return xs
 
-    def get_step(self, x, f, delta):
+    def get_step_cauchy(self, x, f, delta):
+        grad = f.gradient(x)
+        hess = f.hessian(x)
+
+        # Cauchy step
+        return self.get_cauchy_step(x, f, grad, hess, delta)
+
+    def get_step_norm(self, x, f, delta):
+        grad = f.gradient(x)
+        hess = f.hessian(x)
+
+        p_b = inv(hess).dot(grad)
+
+        if np.linalg.norm(p_b) <= delta:
+            return p_b
+        else:
+            return self.get_cauchy_step(x, f, grad, hess, delta)
+
+    def get_step_pd(self, x, f, delta):
         grad = f.gradient(x)
         hess = f.hessian(x)
 
         # Check if hess matrix is positive definite
         is_pd = False
         try:
-            ldl(hess)
+            cholesky(hess)
             is_pd = True
-        except ValueError:
+        except LinAlgError:
             pass
 
         if is_pd:  # Dogleg step
@@ -87,12 +115,14 @@ class Dogleg:
         p_u = -alpha_u*grad
 
         # Complete step with hess positive definite
-        p_b = inv(hess).dot(grad)
+        p_b = -inv(hess).dot(grad)
 
         # Check if complete step is inside confidence region
         if np.linalg.norm(p_b) <= delta:
             return p_b
         # Calculate intercept between Dogleg trajectory and confidence region
+        elif np.linalg.norm(p_u) >= delta:
+            return (delta/np.linalg.norm(p_u))*p_u
         else:
             diff = p_b-p_u
             a = diff.dot(diff)
@@ -115,7 +145,7 @@ class Dogleg:
         if prod <= 0:
             tau = 1
         else:
-            tau = np.min(1, (np.linalg.norm(grad)**3)/(delta*prod))
+            tau = min(1, (np.linalg.norm(grad)**3)/(delta*prod))
 
         return tau*p_s
 
