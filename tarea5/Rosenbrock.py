@@ -89,3 +89,6 @@ class Rosenbrock:
             d = args[0]
             return self.eval(x)+self.gradient(x).dot(d)+0.5*d.dot(self.hessian(x)).dot(d)
         return self.eval(x)
+
+    def mk_grad(self, x, d):
+        return self.gradient(x) + self.hessian(x).dot(d)

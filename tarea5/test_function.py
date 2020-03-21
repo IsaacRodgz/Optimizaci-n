@@ -1,10 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from dogleg import Dogleg
+from lstr import LSTR
 from Rosenbrock import Rosenbrock
 
 
-def run(step, point_type):
+def run(method, point_type):
 
     n = 10
     f = Rosenbrock(n)
@@ -22,7 +23,14 @@ def run(step, point_type):
     tol_x = 1e-8  # Tolerance for x
     tol_f = 1e-8  # Tolerance for function
 
-    alg = Dogleg()
+    if method == "dogleg":
+        alg = Dogleg()
+    elif method == "lstr":
+        alg = LSTR()
+    else:
+        print("\n Error. {} is not a valid method".format(method))
+        return
+
     xs = alg.iterate(x0, mxitr, tol_g, tol_x, tol_f, f)
 
     plt.plot(np.array(range(n)), xs[-1])
