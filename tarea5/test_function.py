@@ -7,7 +7,7 @@ from Rosenbrock import Rosenbrock
 
 def run(method, point_type):
 
-    n = 100
+    n = 10
     f = Rosenbrock(n)
 
     # Initial point
@@ -18,7 +18,7 @@ def run(method, point_type):
     else:
         x0 = np.random.uniform(-2, 2, n)
 
-    mxitr = 50000  # Max number of iterations
+    mxitr = 500  # Max number of iterations
     tol_g = 1e-8  # Tolerance for gradient
     tol_x = 1e-8  # Tolerance for x
     tol_f = 1e-8  # Tolerance for function

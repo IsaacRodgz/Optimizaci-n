@@ -9,6 +9,7 @@ class LSTR:
 
         k = 0  # Start iteration at 0
         x = x0  # Start with initial point
+        x_old = np.zeros(x.shape[0])
         xs = []  # List to save points
         eta = 0.1
         delta0 = 0.1
@@ -40,7 +41,7 @@ class LSTR:
             # Calculate different tolerance criteria
             tol_x_val = np.linalg.norm(x - x_old) / max(1.0, np.linalg.norm(x_old))
             tol_f_val = np.absolute(f.eval(x) - f.eval(x_old)) / max(1.0, np.absolute(f.eval(x_old)))
-            tol_g_val = np.linalg.norm(x_old)
+            tol_g_val = np.linalg.norm(grad)
 
             if k%1 == 0:
                 self.log_latex(x_old, grad, x, k, tol_g_val, np.linalg.norm(x - x_old), f.eval(x))
@@ -67,7 +68,7 @@ class LSTR:
     def get_step(self, x, f, delta, iters):
 
         i = 0
-        z = 0
+        z = np.zeros(x.shape[0])
         d = -f.mk_grad(x, z)
 
         while i < iters and np.linalg.norm(d) != 0:
@@ -81,16 +82,17 @@ class LSTR:
                 return z + tau*d
 
             else:
-                alpha = (g.dot(d))/(d.dot(f.hessian(x)).dot(d))
+                alpha = -(f.gradient(x).dot(d))/(d.dot(f.hessian(x)).dot(d))
+                z_old = z
                 z = z + alpha*d
 
                 if np.linalg.norm(z) >= delta:
                     a = np.linalg.norm(d)**2
                     b = 2*z.dot(d)
-                    c = np.linalg.norm(z)**2 - delta**2
+                    c = np.linalg.norm(z_old)**2 - delta**2
                     tau = (-b + np.sqrt(b**2 - 4*a*c))/(2*a)
 
-                    return z + tau*d
+                    return z_old + tau*d
 
                 d = -f.mk_grad(x, z)
                 i += 1
