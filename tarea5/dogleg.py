@@ -10,6 +10,7 @@ class Dogleg:
 
         k = 0  # Start iteration at 0
         x = x0  # Start with initial point
+        x_old = np.zeros(x.shape[0])
         xs = []  # List to save points
         eta = 0.1
         delta0 = 100

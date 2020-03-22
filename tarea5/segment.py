@@ -1,5 +1,6 @@
 from dogleg import Dogleg
 from lstr import LSTR
+from rbf import RBF
 import numpy as np
 import os
 
@@ -35,21 +36,14 @@ def SolveRidgeRegression(X, y, tau):
     return beta
 
 
-def rbf_gaussian(c, mu, sigma, n):
-    c_matrix = np.tile(c, (n,1)).T
-    r = c_matrix-mu
-    th = 1./(2.*sigma)
-    return np.exp(-(th*r)**2)
-
-
-def build_design_matrix(y, mu, sigma, basis_size):
+def build_design_matrix(mu, f1, f2):
 
     phi = []
-    f1 = rbf_gaussian(y[0].flatten(), mu[0], sigma, basis_size)
-    phi.append(f1)
+    k1 = f1.get_kernel(mu[0])
+    phi.append(k1)
 
-    f2 = rbf_gaussian(y[1].flatten(), mu[1], sigma, basis_size)
-    phi.append(f2)
+    k2 = f2.get_kernel(mu[1])
+    phi.append(k2)
 
     return phi
 
@@ -64,30 +58,40 @@ def train(optim_params, f_params, iters):
     elif optim_params["method"] == "lstr":
         alg = LSTR()
 
+    f1 = RBF(f_params['basis_size'], f_params['sigma'], f_params['y'][0].flatten())
+    f2 = RBF(f_params['basis_size'], f_params['sigma'], f_params['y'][1].flatten())
+
     for i in range(iters):
 
         mu_old[0] = f_params['mu'][0][:]
         mu_old[1] = f_params['mu'][1][:]
 
-        f_params['Phi'] = build_design_matrix(f_params['y'], f_params['mu'], f_params['sigma'], f_params['basis_size'])
+        f_params['Phi'] = build_design_matrix(f_params['mu'], f1, f2)
 
         #f_params['alpha'][0] = np.linalg.lstsq(f_params['Phi'][0], f_params['y'][0].flatten(), rcond=None)[0].reshape((f_params['basis_size'], 1))
         #f_params['alpha'][1] = np.linalg.lstsq(f_params['Phi'][1], f_params['y'][1].flatten(), rcond=None)[0].reshape((f_params['basis_size'], 1))
         f_params['alpha'][0] = SolveRidgeRegression(f_params['Phi'][0], f_params['y'][0], tau).reshape((f_params['basis_size'], 1))
         f_params['alpha'][1] = SolveRidgeRegression(f_params['Phi'][1], f_params['y'][1], tau).reshape((f_params['basis_size'], 1))
-        
+
+        f1.set_phi(f_params['Phi'][0])
+        f1.set_alpha(f_params['alpha'][0])
+        f2.set_phi(f_params['Phi'][1])
+        f2.set_alpha(f_params['alpha'][1])
+
         f_params['mu'][0] = alg.iterate(f_params['mu'][0],
                                         optim_params["mxitr"],
                                         optim_params["tol_g"],
                                         optim_params["tol_x"],
                                         optim_params["tol_f"],
-                                        f)
+                                        f1,
+                                        "1")
         f_params['mu'][1] = alg.iterate(f_params['mu'][1],
                                         optim_params["mxitr"],
                                         optim_params["tol_g"],
                                         optim_params["tol_x"],
                                         optim_params["tol_f"],
-                                        f)
+                                        f2,
+                                        "1")
 
         print("\nCurrent iter: {0}".format(i+1))
 
@@ -115,7 +119,7 @@ if __name__ == '__main__':
     f_params['mu'].append(np.linspace(0, 255, f_params['basis_size']))
 
     optim_params = {'method': "dogleg",
-                    'mxitr': 200,
+                    'mxitr': 10,
                     'tol_g': 1e-8,
                     'tol_x': 1e-8,
                     'tol_f': 1e-8}
