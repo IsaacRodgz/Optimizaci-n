@@ -2,7 +2,61 @@ from dogleg import Dogleg
 from lstr import LSTR
 from rbf import RBF
 import numpy as np
+import cv2
 import os
+
+
+def plot_segments(f1, f2, f_params, img_path, num_bins):
+    image = cv2.imread(img_path)
+
+    row = image.shape[0]
+    col = image.shape[1]
+
+    alpha0 = f_params['alpha'][0].reshape(f_params['basis_size'])
+    alpha1 = f_params['alpha'][1].reshape(f_params['basis_size'])
+
+    mu0 = f_params['mu'][0]
+    mu1 = f_params['mu'][1]
+
+    hist0 = f_params['y'][0].flatten()
+    hist1 = f_params['y'][1].flatten()
+
+    sigma = f_params['sigma']
+    epsilon = 0.01
+
+    image_segmented = np.zeros((row,col,3))
+
+    for i in range(row):
+        for j in range(col):
+
+            bin_x = int(float(image[i,j,0])/256.0*num_bins)
+            bin_y = int(float(image[i,j,1])/256.0*num_bins)
+            bin_z = int(float(image[i,j,2])/256.0*num_bins)
+
+            index = (num_bins**2)*bin_x + num_bins*bin_y + bin_z
+
+            c0 = hist0[index]
+            c1 = hist1[index]
+
+            phi0 = np.exp(-0.5*(1/sigma**2)*(c0-mu0)**2)
+            phi1 = np.exp(-0.5*(1/sigma**2)*(c1-mu1)**2)
+
+            f_val0 = alpha0.dot(phi0)
+            f_val1 = alpha0.dot(phi1)
+
+            F_val0 = (f_val0 + epsilon)/(f_val0 + f_val1 + 2*epsilon)
+            F_val1 = (f_val1 + epsilon)/(f_val0 + f_val1 + 2*epsilon)
+
+            if F_val0 < F_val1:
+                r, g, b = 0, 0, 255
+            else:
+                r, g, b = 255, 0, 0
+
+            image_segmented[i, j, 0] = r
+            image_segmented[i, j, 1] = g
+            image_segmented[i, j, 2] = b
+
+    cv2.imwrite('segmented.png', image_segmented)
 
 
 def read_histograms(path):
@@ -39,6 +93,7 @@ def SolveRidgeRegression(X, y, tau):
 def build_design_matrix(mu, f1, f2):
 
     phi = []
+
     k1 = f1.get_kernel(mu[0])
     phi.append(k1)
 
@@ -48,7 +103,7 @@ def build_design_matrix(mu, f1, f2):
     return phi
 
 
-def train(optim_params, f_params, iters):
+def train(optim_params, f_params, iters, f1, f2):
 
     mu_old = [0, 0]
     tau = f_params['tau']
@@ -57,9 +112,6 @@ def train(optim_params, f_params, iters):
         alg = Dogleg()
     elif optim_params["method"] == "lstr":
         alg = LSTR()
-
-    f1 = RBF(f_params['basis_size'], f_params['sigma'], f_params['y'][0].flatten())
-    f2 = RBF(f_params['basis_size'], f_params['sigma'], f_params['y'][1].flatten())
 
     for i in range(iters):
 
@@ -84,14 +136,14 @@ def train(optim_params, f_params, iters):
                                         optim_params["tol_x"],
                                         optim_params["tol_f"],
                                         f1,
-                                        "1")
+                                        "1")[-1]
         f_params['mu'][1] = alg.iterate(f_params['mu'][1],
                                         optim_params["mxitr"],
                                         optim_params["tol_g"],
                                         optim_params["tol_x"],
                                         optim_params["tol_f"],
                                         f2,
-                                        "1")
+                                        "1")[-1]
 
         print("\nCurrent iter: {0}".format(i+1))
 
@@ -107,6 +159,7 @@ def train(optim_params, f_params, iters):
 if __name__ == '__main__':
 
     histograms = read_histograms("histograms")
+    num_bins = histograms[0].shape[0]
 
     f_params = {'sigma': 10,
                 'basis_size': 10,
@@ -124,4 +177,9 @@ if __name__ == '__main__':
                     'tol_x': 1e-8,
                     'tol_f': 1e-8}
 
-    train(optim_params, f_params, 100)
+    f1 = RBF(f_params['basis_size'], f_params['sigma'], f_params['y'][0].flatten())
+    f2 = RBF(f_params['basis_size'], f_params['sigma'], f_params['y'][1].flatten())
+
+    train(optim_params, f_params, 100, f1, f2)
+
+    plot_segments(f1, f2, f_params, "grave.bmp", num_bins)

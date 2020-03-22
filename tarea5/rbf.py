@@ -76,8 +76,8 @@ class RBF:
 
         c_matrix = np.tile(self.c, (self.n,1)).T
         r = c_matrix-mu
-        th = 1./(2.*self.sigma)
-        return np.exp(-(th*r)**2)
+        th = 1./self.sigma
+        return np.exp(-0.5*(th*r)**2)
 
     def set_phi(self, phi):
         self.Phi = phi
@@ -94,17 +94,16 @@ class RBF:
             Point at which gradient is going to be evaluated
         """
 
-        y = self.c
-        y = y.reshape((y.shape[0], 1))
-        Phi = self.Phi
-        alpha = self.alpha
-        sigma = self.sigma
-        
-        e = Phi@alpha-y
-        prod1 = (y*np.ones((1,alpha.shape[0])) - (np.ones((y.shape[0],1))*x.T))
-        prod2 = ((e*alpha.T)*Phi)*prod1
+        grad = np.zeros(self.n)
+        K = self.get_kernel(x)
+        alpha = self.alpha.flatten()
+        diff = K@alpha - self.c
 
-        return (2/sigma**2)*np.sum(prod2, axis = 0)
+        for i in range(self.n):
+            phi_grad = alpha[i]*K[:,i]*(self.c-x[i])
+            grad[i] = diff.dot(phi_grad)
+
+        return (2/self.sigma**2)*grad
 
     def hessian(self, x):
         """Evaluates hessian of function at point x
@@ -116,14 +115,21 @@ class RBF:
         """
 
         hessian = np.zeros((self.n, self.n))
+        alpha = self.alpha.flatten()
+        K = self.get_kernel(x)
+        diff = K@alpha - self.c
 
-        for i in range(self.n-1):
+        for i in range(self.n):
+            for j in range(self.n):
+                phi_grad_i = (alpha[i]/self.sigma**2)*K[:,i]*(self.c-x[i])
+                phi_grad_j = -(alpha[j]/self.sigma**2)*K[:,j]*(self.c-x[j])
 
-            hessian[i][i] = -400*x[i+1] + 1200*x[i]**2 + 2
-            hessian[i][i+1] = -400*x[i]
+                if i==j:
+                    phi_grad_cross = (1/self.sigma**2)*K[:,i]*((1/self.sigma**2)*(self.c-x[i])**2-1)
+                else:
+                    phi_grad_cross = np.zeros(self.c.shape[0])
 
-        hessian[self.n-1][self.n-2] = -400*x[self.n-2]
-        hessian[self.n-1][self.n-1] = 200
+                hessian[i][j] = 2*(phi_grad_i.dot(phi_grad_j) + diff.dot(phi_grad_cross))
 
         return hessian
 
