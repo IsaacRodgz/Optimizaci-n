@@ -2,11 +2,12 @@ from dogleg import Dogleg
 from lstr import LSTR
 from rbf import RBF
 import numpy as np
+import argparse
 import cv2
 import os
 
 
-def plot_segments(f1, f2, f_params, img_path, num_bins):
+def plot_segments(f1, f2, f_params, img_path, num_bins, output_filename):
     image = cv2.imread(img_path)
 
     row = image.shape[0]
@@ -56,7 +57,47 @@ def plot_segments(f1, f2, f_params, img_path, num_bins):
             image_segmented[i, j, 1] = g
             image_segmented[i, j, 2] = b
 
-    cv2.imwrite('segmented.png', image_segmented)
+    cv2.imwrite(output_filename, image_segmented)
+
+
+def plot_segments_true(histograms, img_path, num_bins, output_filename):
+    image = cv2.imread(img_path)
+
+    row = image.shape[0]
+    col = image.shape[1]
+
+    hist0 = histograms[0].flatten()
+    hist1 = histograms[1].flatten()
+
+    epsilon = 0.01
+
+    image_segmented = np.zeros((row,col,3))
+
+    for i in range(row):
+        for j in range(col):
+
+            bin_x = int(float(image[i,j,0])/256.0*num_bins)
+            bin_y = int(float(image[i,j,1])/256.0*num_bins)
+            bin_z = int(float(image[i,j,2])/256.0*num_bins)
+
+            index = (num_bins**2)*bin_x + num_bins*bin_y + bin_z
+
+            c0 = hist0[index]
+            c1 = hist1[index]
+
+            F_val0 = (c0 + epsilon)/(c0 + c1 + 2*epsilon)
+            F_val1 = (c1 + epsilon)/(c0 + c1 + 2*epsilon)
+
+            if F_val0 < F_val1:
+                r, g, b = 0, 0, 255
+            else:
+                r, g, b = 255, 0, 0
+
+            image_segmented[i, j, 0] = r
+            image_segmented[i, j, 1] = g
+            image_segmented[i, j, 2] = b
+
+    cv2.imwrite(output_filename, image_segmented)
 
 
 def read_histograms(path):
@@ -158,28 +199,40 @@ def train(optim_params, f_params, iters, f1, f2):
 
 if __name__ == '__main__':
 
-    histograms = read_histograms("histograms")
+    parser = argparse.ArgumentParser(description='Image segmentation')
+    parser.add_argument('-s', '--size', default=10, type=int, help='Number of radial basis functions')
+    parser.add_argument('-v', '--variance', default=10, type=float, help='Value of parameter sigma of rbf functions')
+    parser.add_argument('-f', '--hist', default="histograms", type=str, help='Folder name containing histograms')
+    parser.add_argument('-i', '--image', default="grave.bmp", type=str, help='Name of image to segment')
+    parser.add_argument('-o', '--output', default="grave_segmented.png", type=str, help='Name of file of segmented image')
+    parser.add_argument('-t', '--true', default="no", type=str, help='Option to segment image with true histogram or not: yes, no')
+    args = parser.parse_args()
+
+    histograms = read_histograms(args.hist)
     num_bins = histograms[0].shape[0]
 
-    f_params = {'sigma': 10,
-                'basis_size': 10,
-                'epsilon': 0.1,
-                'mu': [],
-                'alpha': [0, 0],
-                'y': histograms,
-                'tau': 1.2}
-    f_params['mu'].append(np.linspace(0, 255, f_params['basis_size']))
-    f_params['mu'].append(np.linspace(0, 255, f_params['basis_size']))
+    if args.true == "yes":
+        plot_segments_true(histograms, args.image, num_bins, args.output)
+    else:
+        f_params = {'sigma': args.variance,
+                    'basis_size': args.size,
+                    'epsilon': 0.1,
+                    'mu': [],
+                    'alpha': [0, 0],
+                    'y': histograms,
+                    'tau': 1.2}
+        f_params['mu'].append(np.linspace(0, 255, f_params['basis_size']))
+        f_params['mu'].append(np.linspace(0, 255, f_params['basis_size']))
 
-    optim_params = {'method': "dogleg",
-                    'mxitr': 10,
-                    'tol_g': 1e-8,
-                    'tol_x': 1e-8,
-                    'tol_f': 1e-8}
+        optim_params = {'method': "dogleg",
+                        'mxitr': 10,
+                        'tol_g': 1e-8,
+                        'tol_x': 1e-8,
+                        'tol_f': 1e-8}
 
-    f1 = RBF(f_params['basis_size'], f_params['sigma'], f_params['y'][0].flatten())
-    f2 = RBF(f_params['basis_size'], f_params['sigma'], f_params['y'][1].flatten())
+        f1 = RBF(f_params['basis_size'], f_params['sigma'], f_params['y'][0].flatten())
+        f2 = RBF(f_params['basis_size'], f_params['sigma'], f_params['y'][1].flatten())
 
-    train(optim_params, f_params, 100, f1, f2)
+        train(optim_params, f_params, 100, f1, f2)
 
-    plot_segments(f1, f2, f_params, "grave.bmp", num_bins)
+        plot_segments(f1, f2, f_params, args.image, num_bins, args.output)
