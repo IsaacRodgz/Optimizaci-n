@@ -12,8 +12,8 @@ class Dogleg:
         x = x0  # Start with initial point
         x_old = np.zeros(x.shape[0])
         xs = []  # List to save points
-        eta = 0.1
-        delta0 = 100
+        eta = 0.001
+        delta0 = 10
         delta = 1
 
         # Iterate while max. num. of iters has not been reached
@@ -38,7 +38,7 @@ class Dogleg:
             if rho_k < 0.25:
                 delta *= 0.25
             else:
-                if rho_k > 0.75 and np.linalg.norm(pk) == delta0:
+                if rho_k > 0.75 and np.linalg.norm(pk) == delta:
                     delta = min(2*delta, delta0)
 
             # Make step forward gradient direction

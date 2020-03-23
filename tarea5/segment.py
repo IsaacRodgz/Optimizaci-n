@@ -177,14 +177,14 @@ def train(optim_params, f_params, iters, f1, f2):
                                         optim_params["tol_x"],
                                         optim_params["tol_f"],
                                         f1,
-                                        "1")[-1]
+                                        "3")[-1]
         f_params['mu'][1] = alg.iterate(f_params['mu'][1],
                                         optim_params["mxitr"],
                                         optim_params["tol_g"],
                                         optim_params["tol_x"],
                                         optim_params["tol_f"],
                                         f2,
-                                        "1")[-1]
+                                        "3")[-1]
 
         print("\nCurrent iter: {0}".format(i+1))
 
@@ -201,6 +201,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Image segmentation')
     parser.add_argument('-s', '--size', default=10, type=int, help='Number of radial basis functions')
+    parser.add_argument('-m', '--method', default="dogleg", type=str, help='Optimization method: dogleg, lstr')
     parser.add_argument('-v', '--variance', default=10, type=float, help='Value of parameter sigma of rbf functions')
     parser.add_argument('-f', '--hist', default="histograms", type=str, help='Folder name containing histograms')
     parser.add_argument('-i', '--image', default="grave.bmp", type=str, help='Name of image to segment')
@@ -224,7 +225,7 @@ if __name__ == '__main__':
         f_params['mu'].append(np.linspace(0, 255, f_params['basis_size']))
         f_params['mu'].append(np.linspace(0, 255, f_params['basis_size']))
 
-        optim_params = {'method': "dogleg",
+        optim_params = {'method': args.method,
                         'mxitr': 10,
                         'tol_g': 1e-8,
                         'tol_x': 1e-8,

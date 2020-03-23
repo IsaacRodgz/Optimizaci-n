@@ -5,7 +5,7 @@ from scipy.linalg import ldl
 
 class LSTR:
 
-    def iterate(self, x0, mxitr, tol_g, tol_x, tol_f, f):
+    def iterate(self, x0, mxitr, tol_g, tol_x, tol_f, f, step):
 
         k = 0  # Start iteration at 0
         x = x0  # Start with initial point
@@ -28,8 +28,8 @@ class LSTR:
             if rho_k < 0.25:
                 delta *= 0.25
             else:
-                if rho_k > 0.75 and np.linalg.norm(pk) == delta0:
-                    delta = np.min(2*delta, delta0)
+                if rho_k > 0.75 and np.linalg.norm(pk) == delta:
+                    delta = min(2*delta, delta0)
 
             # Make step forward gradient direction
             print("rho_k: ", rho_k)
