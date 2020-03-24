@@ -1,24 +1,51 @@
 # Tarea 5
 ## Isaac Rodríguez Bribiesca
 
+### Rosenbrock
+
 * Uso:
 
-    * Ejecutar archivo run.py
+    * Para pruebas con función Rosenbrock, ejecutar archivo run.py
     * Ejecutar "python run.py --help" para imprimir información sobre los parámetros
 
 * Parámetros:
 
-    * Tipo de tamaño de paso: fijo, hess, back [-s]
     * Tipo de punto incial x a usar: const, rand [-p]
-    * Valor parámetro lambda de función: 1, 100, 1000 [-l]
-    * Metodo de optimizacion a usar: newton, gd [-m]
+    * Metodo de optimizacion a usar: dogleg, lstr [-m]
 
 * Ejemplos:
 
-Ejecución de Newton con lambda = 1000, tamaño de paso fijo con valor 1 y punto x inicial fijo [1, 1, ..., 1]
+Ejecución de Dogleg y punto x inicial fijo [-1.2, 1, ..., -1.2, 1]
 
-  * python run.py -s fijo -p const -m newton -l 1000
+  * python run.py -p const -m dogleg
 
-Ejecución de Gradiente Descendiente con lambda = 1, tamaño de paso con matriz Hessiana y punto x inicial fijo [1, 1, ..., 1]
+  Ejecución de LSTR y punto x inicial fijo [-1.2, 1, ..., -1.2, 1]
 
-  * python run.py -s hess -p const -m gd -l 1
+    * python run.py -p const -m lstr
+
+### Segmentación de imágenes
+
+* Uso:
+
+  * Para pruebas con segmentación de imagen, ejecutar archivo segment.py
+  * Ejecutar "python segment.py --help" para imprimir información sobre los parámetros
+
+  * Parámetros:
+
+      * Número de funciones gaussianas a usar [-s]
+      * Metodo de optimizacion a usar: dogleg, lstr [-m]
+      * Valor de parámetro sigma [-v]
+      * Nombre de folder que contiene histogramas [-f]
+      * Nombre de imagen a segmentar [-i]
+      * Nombre de archivo de imagen segmentada a crear [-o]
+      * Opción para segmentar imagen usando histogramas originales: no, yes [-t]
+
+  * Ejemplos:
+
+  Ejecución de Dogleg con 10 gaussianas, sigma = 5, y segmentacion de iamgen "grave.bmp"
+
+    * python segment.py -o grave_segmented.png -i grave.bmp -f histograms -m dogleg -s 10 -v 5
+
+  Ejecución de lstr con 10 gaussianas, sigma = 10, y segmentacion de iamgen "grave.bmp"
+
+    * python segment.py -o grave_segmented.png -i grave.bmp -f histograms -m lstr -s 10 -v 10
