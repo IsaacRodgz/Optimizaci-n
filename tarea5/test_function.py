@@ -14,7 +14,7 @@ def run(method, point_type):
     if point_type == "const":
         x0 = np.ones(n)
         x0[0] = -1.2
-        x0[-1] = -1.2
+        x0[-2] = -1.2
     else:
         x0 = np.random.uniform(-2, 2, n)
 
@@ -31,8 +31,8 @@ def run(method, point_type):
         print("\n Error. {} is not a valid method".format(method))
         return
 
-    xs = alg.iterate(x0, mxitr, tol_g, tol_x, tol_f, f, "3")
+    xs, vs = alg.iterate(x0, mxitr, tol_g, tol_x, tol_f, f, "3")
 
-    plt.plot(np.array(range(n)), xs[-1])
-    plt.legend(['x*'], loc = 'best')
+    plt.plot(np.array(range(len(vs))), vs)
+    plt.legend(['f(x)'], loc = 'best')
     plt.show()

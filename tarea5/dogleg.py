@@ -12,7 +12,8 @@ class Dogleg:
         x = x0  # Start with initial point
         x_old = np.zeros(x.shape[0])
         xs = []  # List to save points
-        eta = 0.001
+        vs = []  # List to save function value at each point
+        eta = 0.1
         delta0 = 10
         delta = 1
 
@@ -20,6 +21,7 @@ class Dogleg:
         while k < mxitr:
 
             xs.append(x)  # Save current point
+            vs.append(f.eval(x))  # Save current value
             grad = f.gradient(x)
 
             # Calculate step size depending on value of step
@@ -38,12 +40,11 @@ class Dogleg:
             if rho_k < 0.25:
                 delta *= 0.25
             else:
-                if rho_k > 0.75 and np.linalg.norm(pk) == delta:
+                if rho_k > 0.75 and np.linalg.norm(pk) == delta0:
                     delta = min(2*delta, delta0)
 
             # Make step forward gradient direction
-            print("rho_k: ", rho_k)
-            print("\n")
+            #print("rho_k: ", rho_k)
             if rho_k > eta:
                 x_old = x
                 x = x + pk
@@ -73,7 +74,7 @@ class Dogleg:
                 print("\n Algorithm reached max num of iterations\n")
                 break
 
-        return xs
+        return xs, vs
 
     def get_step_cauchy(self, x, f, delta):
         grad = f.gradient(x)

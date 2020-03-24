@@ -11,6 +11,7 @@ class LSTR:
         x = x0  # Start with initial point
         x_old = np.zeros(x.shape[0])
         xs = []  # List to save points
+        vs = []  # List to save function value at each point
         eta = 0.1
         delta0 = 10
         delta = 1
@@ -19,6 +20,7 @@ class LSTR:
         while k < mxitr:
 
             xs.append(x)  # Save current point
+            vs.append(f.eval(x))  # Save current value
             grad = f.gradient(x)
             # Calculate step size depending on value of msg
             pk = self.get_step(x, f, delta, 20)
@@ -32,8 +34,6 @@ class LSTR:
                     delta = min(2*delta, delta0)
 
             # Make step forward gradient direction
-            print("rho_k: ", rho_k)
-            print("\n")
             if rho_k > eta:
                 x_old = x
                 x = x + pk
@@ -63,7 +63,7 @@ class LSTR:
                 print("\n Algorithm reached max num of iterations\n")
                 break
 
-        return xs
+        return xs, vs
 
     def get_step(self, x, f, delta, iters):
 

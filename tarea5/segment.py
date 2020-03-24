@@ -48,10 +48,10 @@ def plot_segments(f1, f2, f_params, img_path, num_bins, output_filename):
             F_val0 = (f_val0 + epsilon)/(f_val0 + f_val1 + 2*epsilon)
             F_val1 = (f_val1 + epsilon)/(f_val0 + f_val1 + 2*epsilon)
 
-            if F_val0 < F_val1:
-                r, g, b = 0, 0, 255
-            else:
+            if F_val0 > F_val1:
                 r, g, b = 255, 0, 0
+            else:
+                r, g, b = 0, 0, 255
 
             image_segmented[i, j, 0] = r
             image_segmented[i, j, 1] = g
@@ -89,9 +89,9 @@ def plot_segments_true(histograms, img_path, num_bins, output_filename):
             F_val1 = (c1 + epsilon)/(c0 + c1 + 2*epsilon)
 
             if F_val0 < F_val1:
-                r, g, b = 0, 0, 255
-            else:
                 r, g, b = 255, 0, 0
+            else:
+                r, g, b = 0, 0, 255
 
             image_segmented[i, j, 0] = r
             image_segmented[i, j, 1] = g
@@ -177,14 +177,14 @@ def train(optim_params, f_params, iters, f1, f2):
                                         optim_params["tol_x"],
                                         optim_params["tol_f"],
                                         f1,
-                                        "3")[-1]
+                                        "3")[0][-1]
         f_params['mu'][1] = alg.iterate(f_params['mu'][1],
                                         optim_params["mxitr"],
                                         optim_params["tol_g"],
                                         optim_params["tol_x"],
                                         optim_params["tol_f"],
                                         f2,
-                                        "3")[-1]
+                                        "3")[0][-1]
 
         print("\nCurrent iter: {0}".format(i+1))
 

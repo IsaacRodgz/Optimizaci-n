@@ -122,7 +122,7 @@ class RBF:
         for i in range(self.n):
             for j in range(self.n):
                 phi_grad_i = (alpha[i]/self.sigma**2)*K[:,i]*(self.c-x[i])
-                phi_grad_j = -(alpha[j]/self.sigma**2)*K[:,j]*(self.c-x[j])
+                phi_grad_j = (alpha[j]/self.sigma**2)*K[:,j]*(self.c-x[j])
 
                 if i==j:
                     phi_grad_cross = (1/self.sigma**2)*K[:,i]*((1/self.sigma**2)*(self.c-x[i])**2-1)
