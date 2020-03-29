@@ -15,9 +15,9 @@ def run(point_type, dim, lmbd, function):
 
     # Initial point
     if point_type == "const":
-        x0 = np.ones((dim, dim))
+        x0 = np.ones(dim*dim)
     elif point_type == "rand":
-        x0 = np.random.rand(dim,dim)
+        x0 = np.random.rand(dim*dim)
     else:
         print("\n Error, invalid type of point")
         quit()

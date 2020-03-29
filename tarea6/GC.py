@@ -57,6 +57,9 @@ class GC:
             beta = (g.dot(Q).dot(d))/(d.dot(Q).dot(d))
             d = -g + beta*d
 
+            if k%20 == 0:
+                print("Iter {0}: f(x) = {1}".format(k, fs[-1]))
+
         xs.append(x)
         fs.append(f.eval(x))
 
