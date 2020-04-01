@@ -34,3 +34,9 @@ def run(point_type, dim, lmbd, function):
     plt.plot(np.array(range(len(fs))), fs)
     plt.legend(['f(x)'], loc = 'best')
     plt.show()
+
+    plt.imshow(g)
+    plt.show()
+
+    plt.imshow(xs[-1].reshape((dim,dim)))
+    plt.show()

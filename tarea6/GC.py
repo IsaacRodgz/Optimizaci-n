@@ -43,21 +43,23 @@ class GC:
 
         d = -grad  # Get initial conjugate direction
 
-        Q = f.get_Q()  # Get matrix of quadratic function
+        Q = f.get_Q()  # Get hessian matrix
 
         # Iterate at most the dimension of the problem
         for k in range(x.shape[0]):
 
+            Qd = Q.dot(d)  # Get product of Q times d
+
             xs.append(x)
             fs.append(f.eval(x))
 
-            alpha = -(grad.dot(d))/(d.dot(Q).dot(d))
+            alpha = -(grad.dot(d))/(d.dot(Qd))
             x = x + alpha*d
             g = f.gradient(x)
-            beta = (g.dot(Q).dot(d))/(d.dot(Q).dot(d))
+            beta = (g.dot(Qd))/(d.dot(Qd))
             d = -g + beta*d
 
-            if k%20 == 0:
+            if k%1 == 0:
                 print("Iter {0}: f(x) = {1}".format(k, fs[-1]))
 
         xs.append(x)

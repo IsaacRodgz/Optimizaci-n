@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.sparse import csr_matrix
 
 
 class Function:
@@ -36,18 +37,13 @@ class Function:
             for j in range(col):
                 val_neigh = 0
                 for neigh in neighbours:
-                    if i+neigh[0] < 0 or i+neigh[0] >= row:
-                        val_neigh += 0
-                        continue
-                    else:
+                    if not(i+neigh[0] < 0 or i+neigh[0] >= row) and not(j+neigh[1] < 0 or j+neigh[1] >= col):
                         indx = i+neigh[0]
-                    if j+neigh[1] < 0 or j+neigh[1] >= col:
-                        val_neigh += 0
-                        continue
-                    else:
                         indy = j+neigh[1]
-                    val_neigh += (x[i][j] - x[indx][indy])**2
-                val += (x[i][j] - self.g[i][j])**2 + self.lmbd*val_neigh
+                        val_neigh += (x[i][j] - x[indx][indy])**2
+                val += self.lmbd*val_neigh
+
+        val += np.sum((x-self.g)**2)
 
         return val
 
@@ -69,20 +65,12 @@ class Function:
 
         for i in range(row):
             for j in range(col):
-                val_neigh = 2*(x[i][j]-self.g[i][j])
+                grad[i*col+j] = 2*(x[i][j]-self.g[i][j])
                 for neigh in neighbours:
-                    if i+neigh[0] < 0 or i+neigh[0] >= row:
-                        val_neigh += 0
-                        continue
-                    else:
+                    if not(i+neigh[0] < 0 or i+neigh[0] >= row) and not(j+neigh[1] < 0 or j+neigh[1] >= col):
                         indx = i+neigh[0]
-                    if j+neigh[1] < 0 or j+neigh[1] >= col:
-                        val_neigh += 0
-                        continue
-                    else:
                         indy = j+neigh[1]
-                    val_neigh += 4*self.lmbd*(x[i][j] - x[indx][indy])
-                grad[i*col+j] += (x[i][j] - self.g[i][j])**2 + self.lmbd*val_neigh
+                        grad[i*col+j] += 4*self.lmbd*(x[i][j] - x[indx][indy])
 
         return grad
 
@@ -92,50 +80,19 @@ class Function:
 
         row = self.dimx
         col = self.dimy
-        '''
-        neighbours = [(1,0), (-1,0), (0,1), (0, -1)]
-        x = x.reshape((self.dimx, self.dimy))
-        H = np.zeros((row*col, row*col))
-
-        index2rowcol = []
-        k = 0
-        for i in range(row):
-            for j in range(col):
-                index2rowcol.append((i,j))
-
-        for i in range(row*col):
-            for j in range(row*col):
-                if i == j:
-                    H[i][j] = 2+8*self.lmbd
-                elif self.neigh(i, j, index2rowcol):
-
-                    H[i][j] = -4*self.lmbd
-                else:
-                    H[i][j] = 0
-        '''
 
         H = np.zeros((row*col, row*col))
-        H[0][0] = 10
-        H[0][1] = -4
 
-        for i in range(1, row*col-1):
-            H[i][i-1] = -4
-            H[i][i] = 10
-            H[i][i+1] = -4
+        for i in range(0, row*col):
+            H[i][i] = 2 + 16*self.lmbd
+            if (i-1)%row == 0:
+                H[i-1][i] = H[i+1][i] = -4*self.lmbd
+                H[i][i-1] = H[i][i+1] = -4*self.lmbd
 
-        H[row*col-1][row*col-2] = -4
-        H[row*col-1][row*col-1] = 10
+        for i in range(0, row*col-3):
+            H[i+3][i] = -4*self.lmbd
 
-        return H
+        for i in range(0, row*col-3):
+            H[i][i+3] = -4*self.lmbd
 
-    def neigh(self, i, j, index2rowcol):
-
-        neighbours = [(1,0), (-1,0), (0,1), (0, -1)]
-        current = index2rowcol[i]
-        other = index2rowcol[j]
-
-        for neigh in neighbours:
-            if other[0] == current[0]+neigh[0] and other[1] == current[1]+neigh[1]:
-                return True
-
-        return False
+        return csr_matrix(H)
