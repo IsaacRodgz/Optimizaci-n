@@ -39,9 +39,11 @@ class GC:
 
         fs = []  # List with all the values f(x) traversed
 
-        grad = f.gradient(x0)  # Get initial gradient evaluated at point x0
+        gs = []  # List with all the values ||gradient(x)|| traversed
 
-        d = -grad  # Get initial conjugate direction
+        g = f.gradient(x0)  # Get initial gradient evaluated at point x0
+
+        d = -g  # Get initial conjugate direction
 
         Q = f.get_Q()  # Get hessian matrix
 
@@ -52,8 +54,9 @@ class GC:
 
             xs.append(x)
             fs.append(f.eval(x))
+            gs.append(np.linalg.norm(g))
 
-            alpha = -(grad.dot(d))/(d.dot(Qd))
+            alpha = -(g.dot(d))/(d.dot(Qd))
             x = x + alpha*d
             g = f.gradient(x)
             beta = (g.dot(Qd))/(d.dot(Qd))
@@ -62,10 +65,14 @@ class GC:
             if k%1 == 0:
                 print("Iter {0}: f(x) = {1}".format(k, fs[-1]))
 
+            if abs(np.linalg.norm(g)) < 1e-8:
+                print("Algorithm converged with ||g|| = 0")
+                break;
+
         xs.append(x)
         fs.append(f.eval(x))
 
-        return xs, fs
+        return xs, fs, gs
 
     def log(self, x_old, grad, x, curr_iter, tol_g_val, tol_x_val, tol_f_val):
         """Print to console status of current iteration

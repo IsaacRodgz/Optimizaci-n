@@ -1,4 +1,4 @@
-# Tarea 4
+# Tarea 6
 ## Isaac Rodríguez Bribiesca
 
 * Uso:
@@ -8,16 +8,12 @@
 
 * Parámetros:
 
-    * Tipo de tamaño de paso: cubic, barzilai, zhang [-s]
+    * Dimensión de la matriz del problema [-d]
     * Tipo de punto incial x a usar: const, rand [-p]
-    * Función a optimizar: rosenbrock, wood, mnist [-p]
+    * Valor de parámetro lambda [-l]
 
 * Ejemplos:
 
-Ejecución de gradiente descendiente para optimizar regresión logística con el dataset de MNIST, con tamaño de paso calculado mediante Barzilai-Borwein y punto x inicial fijo [1, 1, ..., 1].
+Ejecución de gradiente conjugado, para matriz de dimensión 128*128, valor de regularización lambda = 100 y punto x inicial fijo [1, 1, ..., 1].
 
-  * python run.py -p const -s barzilai -f mnist
-
-Ejecución de gradiente descendiente para optimizar la función Wood,  con tamaño de paso calculado mediante Zhang-Hager y punto x inicial fijo [-3, -1, -3, -1]
-
-  * python run.py -p const -s zhang -f wood
+  * python run.py -d 128 -l 100

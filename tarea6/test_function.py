@@ -25,18 +25,27 @@ def run(point_type, dim, lmbd, function):
     # Estimate minimum point through optimization method chosen
     alg = GC()
 
-    xs, fs = alg.iterate(x0, f)
+    xs, fs, gs = alg.iterate(x0, f)
 
     # Print point x found
-    print("\nf(x) =  ", f.eval(xs[-1]))
+    #print("\nf(x) =  ", f.eval(xs[-1]))
 
     # Plot f(x) through iterations
     plt.plot(np.array(range(len(fs))), fs)
     plt.legend(['f(x)'], loc = 'best')
+    plt.xlabel("iteration")
+    plt.show()
+
+    # Plot ||gradient(x)|| through iterations
+    plt.plot(np.array(range(len(gs))), gs)
+    plt.legend(['grad(x)'], loc = 'best')
+    plt.xlabel("iteration")
     plt.show()
 
     plt.imshow(g)
+    plt.title("True matrix (g)")
     plt.show()
 
     plt.imshow(xs[-1].reshape((dim,dim)))
+    plt.title("Solution found (x*)")
     plt.show()
