@@ -9,6 +9,8 @@ if __name__ == '__main__':
 
     parser.add_argument('-f', '--function', default="rosenbrock", type=str, help='Function to minimize: rosenbrock, wood')
 
+    parser.add_argument('-b', '--beta', default="fr", type=str, help='Function to minimize: fr, pr, hs')
+
     args = parser.parse_args()
 
-    run(args.point, args.function)
+    run(args.point, args.function, args.beta)

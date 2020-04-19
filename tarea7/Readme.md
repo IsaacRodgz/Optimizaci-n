@@ -1,4 +1,4 @@
-# Tarea 6
+# Tarea 7
 ## Isaac Rodríguez Bribiesca
 
 * Uso:
@@ -8,12 +8,16 @@
 
 * Parámetros:
 
-    * Dimensión de la matriz del problema [-d]
     * Tipo de punto incial x a usar: const, rand [-p]
-    * Valor de parámetro lambda [-l]
+    * Función a minimizar: rosenbrock, wood [-f]
+    * Método para calcular parámetro beta: fr, pr, hs [-b]
 
 * Ejemplos:
 
-Ejecución de gradiente conjugado, para matriz de dimensión 128*128, valor de regularización lambda = 100 y punto x inicial fijo [1, 1, ..., 1].
+  * Ejecución de gradiente conjugado no lineal con método Fletcher-Reeves, aplicado a función Rosenbrock y punto x inicial fijo [1, 1, ..., 1].
 
-  * python run.py -d 128 -l 100
+    * python run.py -b fr -f rosenbrock -p const
+
+  * Ejecución de gradiente conjugado no lineal con método Fletcher-Reeves Polak-Ribiere, aplicado a función Wood y punto x inicial aleatorio.
+
+    * python run.py -b pr -f wood -p rand

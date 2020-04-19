@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from GC import GC
+from NCG import NCG
 from Rosenbrock import Rosenbrock
 from Wood import Wood
 
 
-def run(point_type, function):
+def run(point_type, function, beta_type):
 
     # Validate function
     if function == "rosenbrock":
@@ -33,11 +33,11 @@ def run(point_type, function):
         quit()
 
     # Estimate minimum point through optimization method chosen
-    alg = GC()
+    alg = NCG()
 
     mx_iter = 10000
 
-    xs, fs, gs = alg.iterate(x0, f, mx_iter)
+    xs, fs, gs = alg.iterate(x0, f, mx_iter, 1e-8, beta_type)
 
     # Print point x found
     #print("\nf(x) =  ", f.eval(xs[-1]))
@@ -52,12 +52,4 @@ def run(point_type, function):
     plt.plot(np.array(range(len(gs))), gs)
     plt.legend(['grad(x)'], loc = 'best')
     plt.xlabel("iteration")
-    plt.show()
-
-    plt.imshow(g)
-    plt.title("True matrix (g)")
-    plt.show()
-
-    plt.imshow(xs[-1].reshape((dim,dim)))
-    plt.title("Solution found (x*)")
     plt.show()
