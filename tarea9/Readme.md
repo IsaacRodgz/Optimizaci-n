@@ -8,16 +8,15 @@
 
 * Parámetros:
 
-    * Tipo de punto incial x a usar: const, rand [-p]
     * Función a minimizar: rosenbrock, wood [-f]
-    * Método para calcular parámetro beta: fr, pr, hs [-b]
+    * Método de optimización Cuasi-Newton: dfp, bfgs [-m]
 
 * Ejemplos:
 
-  * Ejecución de gradiente conjugado no lineal con método Fletcher-Reeves, aplicado a función Rosenbrock y punto x inicial fijo [1, 1, ..., 1].
+  * Ejecución de DFP, aplicado a función Rosenbrock
 
-    * python run.py -b fr -f rosenbrock -p const
+    * python run.py -m dfp -f rosenbrock
 
-  * Ejecución de gradiente conjugado no lineal con método Fletcher-Reeves Polak-Ribiere, aplicado a función Wood y punto x inicial aleatorio.
+  * Ejecución de BFGS, aplicado a función Wood.
 
-    * python run.py -b pr -f wood -p rand
+    * python run.py -m bfgs -f wood

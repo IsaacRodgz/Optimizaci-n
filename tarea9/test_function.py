@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from DFP import DFP
 from BFGS import BFGS
+import time
 
 
 def eval_rosenbrock(x):
@@ -58,7 +59,7 @@ def gradient_wood(x):
             ])
 
 
-def run(point_type, function, method):
+def run(function, method):
 
     # Validate function
     if function == "rosenbrock":
@@ -73,21 +74,6 @@ def run(point_type, function, method):
         print("\n Error, invalid function")
         quit()
 
-    # Initial point
-    if point_type == "const":
-        if function == "rosenbrock":
-            x0 = np.ones(n)
-            x0[0] = -1.2
-            x0[-2] = -1.2
-        else:
-            x0 = np.array([-3, -1, -3, -1])
-    elif point_type == "rand":
-        x0 = np.random.uniform(0, 1, n)
-        #x0 = np.random.randn(n, 1).reshape(n)
-    else:
-        print("\n Error, invalid type of point")
-        quit()
-
     # Estimate minimum point through optimization method chosen
     if method == "dfp":
         alg = DFP()
@@ -98,12 +84,26 @@ def run(point_type, function, method):
         quit()
 
     mx_iter = 10000
+    tol = 1e-6
+    runs = 30
 
-    xs, fs, gs = alg.iterate(x0, f, g, mx_iter, 1e-8)
+    exec_times = []
+    gradient_run = []
+    iters_run = []
 
-    # Print point x found
-    #print("\nf(x) =  ", f.eval(xs[-1]))
+    for i in range(runs):
+        start_time = time.time()
+        x0 = np.random.uniform(0, 1, n)
+        xs, fs, gs = alg.iterate(x0, f, g, mx_iter, tol)
+        exec_times.append(time.time() - start_time)
+        iters_run.append(len(xs))
+        gradient_run.append(gs[-1])
 
+    print("\n Mean execution time: {}".format(np.mean(exec_times)))
+    print(" Mean number of iterations: {}".format(np.mean(iters_run)))
+    print(" Mean gradient norm: {}".format(np.mean(gradient_run)))
+
+    '''
     # Plot f(x) through iterations
     plt.plot(np.array(range(len(fs))), fs)
     plt.legend(['f(x)'], loc = 'best')
@@ -115,3 +115,4 @@ def run(point_type, function, method):
     plt.legend(['grad(x)'], loc = 'best')
     plt.xlabel("iteration")
     plt.show()
+    '''

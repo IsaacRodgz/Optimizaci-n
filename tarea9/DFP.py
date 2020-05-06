@@ -4,7 +4,7 @@ from scipy.optimize import line_search
 
 class DFP:
 
-    def iterate(self, x0, f, grad, mx_iter, grad_tol):
+    def iterate(self, x0, f, grad, mx_iter, tol):
         """Iterate with DFP algorithm
 
         Parameters
@@ -34,9 +34,14 @@ class DFP:
 
         g = grad(x0)  # Get initial gradient evaluated at point x0
 
+        g_diff = 1
+        x_diff = 1
+        f_diff = 1
+        not_converged = True
+
         # Iterate at most the dimension of the problem
         k = 0
-        while k < mx_iter and np.linalg.norm(g) > grad_tol:
+        while k < mx_iter and not_converged:
 
             # Get direction
             d = -np.dot(H, g)
@@ -48,6 +53,7 @@ class DFP:
                 alpha = self.cubic_interpolation(x, -g, f, 1e-4)
 
             # Calculate new x
+            x_old = x
             x = x + alpha*d
 
             # Update gradient
@@ -70,6 +76,13 @@ class DFP:
 
             if k%1 == 0:
                 print("Iter {0}: f(x) = {1}    |g(x)| = {2}".format(k, fs[-1], gs[-1]))
+
+            f_x = f(x)
+            f_x_old = f(x_old)
+            g_diff = np.linalg.norm(g)
+            x_diff = np.linalg.norm(x - x_old) / max(1.0, np.linalg.norm(x_old))
+            f_diff = np.absolute(f_x - f_x_old) / max(1.0, np.absolute(f_x_old))
+            not_converged = g_diff > tol and x_diff > tol and f_diff > tol
 
             k += 1
 
